@@ -22,6 +22,9 @@ export default function Header() {
             <Link href="/#come-funziona" className="text-gray-700 hover:text-blue-600 font-medium">
               Come Funziona
             </Link>
+            <Link href="/#alert" className="text-gray-700 hover:text-blue-600 font-medium">
+              Alert
+            </Link>
           </nav>
         </div>
       </div>
