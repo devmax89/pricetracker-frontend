@@ -1,0 +1,312 @@
+#!/bin/bash
+#==========================================
+# Fix TypeScript Error in Product Page
+#==========================================
+
+cd /opt/pricetracker-frontend
+
+echo "🔧 Fixing TypeScript error in product page..."
+
+cat > app/products/[id]/page.tsx << 'PRODUCTPAGE'
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
+import { getProduct, getProductPrices, getProductHistory } from '@/lib/api';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
+
+interface Product {
+  id: number;
+  name: string;
+  brand: string;
+  model: string;
+  category: string;
+  image_url: string;
+}
+
+interface PriceItem {
+  retailer: string;
+  price: number;
+  availability: boolean;
+  url: string;
+}
+
+interface UsedListing {
+  title: string;
+  price: number;
+  location: string;
+  condition: string;
+  url: string;
+  published_date: string;
+}
+
+interface Prices {
+  new: PriceItem[];
+  used: UsedListing[];
+}
+
+export default function ProductPage() {
+  const params = useParams();
+  const id = params.id as string;
+
+  const [product, setProduct] = useState<Product | null>(null);
+  const [prices, setPrices] = useState<Prices | null>(null);
+  const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setLoading(true);
+        const [productData, pricesData, historyData] = await Promise.all([
+          getProduct(id),
+          getProductPrices(id),
+          getProductHistory(id, 30)
+        ]);
+
+        setProduct(productData);
+        setPrices(pricesData);
+        setHistory(historyData);
+        setError(null);
+      } catch (err: any) {
+        console.error('Error fetching product data:', err);
+        setError(err.message || 'Errore nel caricamento del prodotto');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-gray-600">Caricamento prodotto...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md">
+          <p className="text-red-600 font-medium text-center">❌ {error || 'Prodotto non trovato'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Prepare chart data
+  const chartData = {
+    labels: history.map((h: any) => new Date(h.scraped_at).toLocaleDateString('it-IT', { month: 'short', day: 'numeric' })),
+    datasets: [
+      {
+        label: 'Prezzo (€)',
+        data: history.map((h: any) => h.price),
+        borderColor: 'rgb(37, 99, 235)',
+        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+        fill: true,
+        tension: 0.4,
+      }
+    ]
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context: any) {
+            return '€' + context.parsed.y;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+        ticks: {
+          callback: function(value: any) {
+            return '€' + value;
+          }
+        }
+      }
+    }
+  };
+
+  const minPrice = prices?.new && prices.new.length > 0 
+    ? Math.min(...prices.new.map((p: PriceItem) => p.price))
+    : null;
+
+  const minUsedPrice = prices?.used && prices.used.length > 0
+    ? Math.min(...prices.used.map((u: UsedListing) => u.price))
+    : null;
+
+  return (
+    <main className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumb */}
+        <nav className="text-sm text-gray-500 mb-6">
+          <a href="/" className="text-blue-600 hover:underline">Home</a>
+          <span className="mx-2">/</span>
+          <span className="capitalize">{product.category}</span>
+          <span className="mx-2">/</span>
+          <span>{product.name}</span>
+        </nav>
+
+        {/* Product Header */}
+        <div className="bg-white rounded-xl shadow-sm p-8 mb-6">
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-xl h-80 flex items-center justify-center text-white text-8xl">
+                🎮
+              </div>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
+              <div className="flex gap-2 mb-6">
+                <span className="bg-gray-100 px-4 py-2 rounded-lg font-medium">{product.brand}</span>
+                <span className="bg-gray-100 px-4 py-2 rounded-lg font-medium capitalize">{product.category}</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
+                  <div className="text-sm opacity-90 mb-2">Miglior Prezzo Nuovo</div>
+                  <div className="text-4xl font-bold">{minPrice ? `€${minPrice}` : 'N/D'}</div>
+                </div>
+                <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-xl p-6 text-white">
+                  <div className="text-sm opacity-90 mb-2">Miglior Prezzo Usato</div>
+                  <div className="text-4xl font-bold">{minUsedPrice ? `€${minUsedPrice}` : 'N/D'}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Price History Chart */}
+        {history.length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm p-8 mb-6">
+            <h2 className="text-2xl font-bold mb-6">📊 Storico Prezzi (30 giorni)</h2>
+            <Line data={chartData} options={chartOptions} />
+          </div>
+        )}
+
+        {/* Prices Grid */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* New Prices */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-2xl font-bold mb-6">🆕 Prezzi Nuovo</h2>
+            <div className="space-y-4">
+              {prices?.new && prices.new.length > 0 ? (
+                prices.new.map((item: PriceItem, idx: number) => (
+                  <div key={idx} className="border-2 border-gray-200 rounded-xl p-4 hover:border-blue-600 transition-colors">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold text-lg">{item.retailer}</span>
+                      <span className="text-2xl font-bold text-blue-600">€{item.price}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className={item.availability ? 'text-green-600' : 'text-red-600'}>
+                        {item.availability ? '✓ Disponibile' : '✗ Non disponibile'}
+                      </span>
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                      >
+                        Vai allo Store →
+                      </a>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-8">Nessun prezzo disponibile</p>
+              )}
+            </div>
+          </div>
+
+          {/* Used Prices */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-2xl font-bold mb-6">♻️ Prezzi Usato (Subito.it)</h2>
+            <div className="space-y-4">
+              {prices?.used && prices.used.length > 0 ? (
+                prices.used.map((listing: UsedListing, idx: number) => (
+                  <div key={idx} className="border-2 border-gray-200 rounded-xl p-4 hover:border-green-600 transition-colors">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1">
+                        <div className="font-semibold mb-1">{listing.title}</div>
+                        <div className="text-sm text-gray-600">
+                          📍 {listing.location} • <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded text-xs font-medium">{listing.condition}</span>
+                        </div>
+                      </div>
+                      <span className="text-2xl font-bold text-green-600 ml-4">€{listing.price}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-500">
+                        Pubblicato: {new Date(listing.published_date).toLocaleDateString('it-IT')}
+                      </span>
+                      <a
+                        href={listing.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                      >
+                        Vedi Annuncio →
+                      </a>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-8">Nessun annuncio usato disponibile</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+PRODUCTPAGE
+
+echo "✅ Product page fixed"
+echo ""
+echo "🏗️  Rebuilding..."
+npm run build
+
+echo ""
+echo "🔄 Restarting..."
+pm2 restart nextjs-app
+
+echo ""
+echo "✅ Build completed successfully!"
