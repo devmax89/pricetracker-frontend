@@ -7,6 +7,14 @@ interface Product {
   model: string;
   category: string;
   image_url?: string;
+  // ✅ AGGIUNGI QUESTI CAMPI
+  new_min_price?: string;
+  new_avg_price?: string;
+  new_max_price?: string;
+  used_min_price?: string;
+  used_avg_price?: string;
+  used_count?: string;
+  discount_percentage?: string;
 }
 
 interface ProductCardProps {
@@ -14,10 +22,18 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  // Mock data per prezzi (in futuro prenderli dall'API)
-  const newPrice = 899;
-  const usedPrice = 750;
-  const discount = 15;
+  // ✅ USA I PREZZI DALL'API invece di mock
+  const newPrice = product.new_min_price 
+    ? parseFloat(product.new_min_price) 
+    : null;
+  
+  const usedPrice = product.used_min_price 
+    ? parseFloat(product.used_min_price) 
+    : null;
+  
+  const discount = product.discount_percentage 
+    ? Math.round(parseFloat(product.discount_percentage)) 
+    : null;
 
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all cursor-pointer flex flex-col h-full">
@@ -42,28 +58,50 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Badge categoria */}
         <div className="mb-4">
           <span className="inline-block text-xs bg-gray-100 px-3 py-1 rounded-full text-gray-700 uppercase font-semibold">
-            {product.category === 'gpu' ? 'NUOVO' : 'NUOVO'}
+            {product.category === 'gpu' ? 'GPU' : 
+             product.category === 'cpu' ? 'CPU' :
+             product.category === 'console' ? 'CONSOLE' :
+             product.category === 'monitor' ? 'MONITOR' : 'TECH'}
           </span>
         </div>
 
         {/* Sezione prezzi */}
         <div className="flex-1">
           {/* Prezzo NUOVO con badge sconto */}
-          <div className="flex justify-between items-center mb-3">
-            <div className="flex flex-col">
-              <span className="text-xs text-gray-500 uppercase font-semibold mb-1">Nuovo</span>
-              <span className="text-2xl font-bold text-blue-600">€{newPrice}</span>
+          {newPrice && (
+            <div className="flex justify-between items-center mb-3">
+              <div className="flex flex-col">
+                <span className="text-xs text-gray-500 uppercase font-semibold mb-1">Nuovo</span>
+                <span className="text-2xl font-bold text-blue-600">
+                  €{newPrice.toFixed(0)}
+                </span>
+              </div>
+              {discount && discount > 0 && (
+                <div className="bg-red-600 text-white px-3 py-1 rounded-lg font-bold text-sm">
+                  -{discount}%
+                </div>
+              )}
             </div>
-            <div className="bg-red-600 text-white px-3 py-1 rounded-lg font-bold text-sm">
-              -{discount}%
-            </div>
-          </div>
+          )}
 
           {/* Prezzo USATO */}
-          <div className="mb-4">
-            <span className="text-xs text-gray-500 uppercase font-semibold mb-1 block">Usato da</span>
-            <span className="text-xl font-bold text-green-600">€{usedPrice}</span>
-          </div>
+          {usedPrice && (
+            <div className="mb-4">
+              <span className="text-xs text-gray-500 uppercase font-semibold mb-1 block">
+                Usato da
+              </span>
+              <span className="text-xl font-bold text-green-600">
+                €{usedPrice.toFixed(0)}
+              </span>
+            </div>
+          )}
+
+          {/* Se non ci sono prezzi */}
+          {!newPrice && !usedPrice && (
+            <div className="text-gray-400 text-sm italic">
+              Prezzi in aggiornamento...
+            </div>
+          )}
         </div>
 
         {/* Bottoni */}
