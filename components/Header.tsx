@@ -1,10 +1,16 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 
 export default function Header() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex justify-between items-center">
+          {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <span className="text-2xl font-bold">
               <span className="text-blue-600">Occhio</span>
@@ -12,21 +18,76 @@ export default function Header() {
             </span>
             <span className="text-sm text-gray-500">.com</span>
           </Link>
+
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <Link href="/#categorie" className="text-gray-700 hover:text-blue-600 font-medium">
+            <Link href="/#categorie" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Categorie
             </Link>
-            <Link href="/#offerte" className="text-gray-700 hover:text-blue-600 font-medium">
+            <Link href="/#offerte" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Offerte
             </Link>
-            <Link href="/come-funziona" className="text-gray-700 hover:text-blue-600 font-medium">
+            <Link href="/come-funziona" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Come Funziona
             </Link>
-            <Link href="/#alert" className="text-gray-700 hover:text-blue-600 font-medium">
+            <Link href="/#alert" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Alert
             </Link>
           </nav>
+
+          {/* Mobile Hamburger Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              // Close Icon
+              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              // Hamburger Icon
+              <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <nav className="md:hidden mt-4 pb-4 border-t border-gray-100 pt-4 space-y-3">
+            <Link
+              href="/#categorie"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition"
+            >
+              📂 Categorie
+            </Link>
+            <Link
+              href="/#offerte"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition"
+            >
+              🔥 Offerte
+            </Link>
+            <Link
+              href="/come-funziona"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition"
+            >
+              ❓ Come Funziona
+            </Link>
+            <Link
+              href="/#alert"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition"
+            >
+              🔔 Alert
+            </Link>
+          </nav>
+        )}
       </div>
     </header>
   );
