@@ -19,7 +19,7 @@ export default function Header() {
             <Link href="/#offerte" className="text-gray-700 hover:text-blue-600 font-medium">
               Offerte
             </Link>
-            <Link href="/#come-funziona" className="text-gray-700 hover:text-blue-600 font-medium">
+            <Link href="/come-funziona" className="text-gray-700 hover:text-blue-600 font-medium">
               Come Funziona
             </Link>
             <Link href="/#alert" className="text-gray-700 hover:text-blue-600 font-medium">
