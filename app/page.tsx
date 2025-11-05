@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/ProductCard';
 import { getProducts } from '@/lib/api';
 
@@ -13,11 +14,20 @@ const categories = [
   { icon: '⌨️', name: 'Periferiche', slug: 'periferiche', desc: 'Mouse, Tastiere' },
 ];
 
-export default function Home() {
+// Componente separato per gestire searchParams
+function SearchContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [products, setProducts] = useState<any[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Stato ricerca
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
 
+  // Carica prodotti all'avvio
   useEffect(() => {
     async function fetchProducts() {
       try {
@@ -36,6 +46,54 @@ export default function Home() {
     fetchProducts();
   }, []);
 
+  // Filtra prodotti quando cambia la ricerca
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      // Se ricerca vuota, mostra tutti
+      setFilteredProducts(products);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    
+    const filtered = products.filter(product => {
+      // Cerca in nome, brand, modello
+      const searchableText = [
+        product.name,
+        product.brand,
+        product.model,
+        product.category
+      ].join(' ').toLowerCase();
+
+      return searchableText.includes(query);
+    });
+
+    setFilteredProducts(filtered);
+  }, [searchQuery, products]);
+
+  // Gestisce il submit della ricerca
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Aggiorna URL con query param
+    if (searchQuery.trim()) {
+      router.push(`/?search=${encodeURIComponent(searchQuery)}`);
+    } else {
+      router.push('/');
+    }
+  };
+
+  // Gestisce il cambio input
+  const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  // Resetta ricerca
+  const clearSearch = () => {
+    setSearchQuery('');
+    router.push('/');
+  };
+
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -43,37 +101,63 @@ export default function Home() {
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
       }} className="text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          {/* Title ridotto */}
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Trova il Miglior Prezzo Tech in Italia
           </h1>
-          <p className="text-lg md:text-xl mb-8 opacity-95">
+          <p className="text-xl md:text-2xl mb-8 text-purple-100">
             Nuovo e Usato • Storico Prezzi • Alert Automatici
           </p>
           
-          {/* Search bar stile mockup (bianca) */}
-          <div className="max-w-2xl mx-auto">
-            <div className="relative">
+          {/* Search Bar - FIXED STYLING */}
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
+            <div className="relative flex items-center">
               <input
                 type="text"
+                value={searchQuery}
+                onChange={handleSearchInput}
                 placeholder="Cerca RTX 4090, PS5, iPhone 15..."
-                className="w-full px-6 py-4 text-base rounded-full text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/30 shadow-xl bg-white"
+                className="w-full px-6 py-4 rounded-full text-lg shadow-xl focus:outline-none focus:ring-4 focus:ring-white/30"
+                style={{ 
+                  paddingRight: searchQuery ? '140px' : '120px',
+                  backgroundColor: '#ffffff',
+                  color: '#111827',
+                }}
               />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-semibold transition shadow-lg text-sm">
+              
+              {/* Clear button (solo se c'è testo) */}
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={clearSearch}
+                  className="absolute right-28 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
+                  title="Cancella ricerca"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+              
+              {/* Search button */}
+              <button
+                type="submit"
+                className="absolute right-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full font-semibold transition-colors shadow-lg"
+              >
                 Cerca
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </section>
 
       {/* Categories */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">Esplora per Categoria</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {categories.map((cat) => (
             <div
               key={cat.slug}
-              className="bg-white rounded-2xl p-6 text-center cursor-pointer shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all"
+              className="bg-white rounded-2xl p-6 text-center hover:shadow-xl transition cursor-pointer border-2 border-transparent hover:border-purple-200"
             >
               <div className="text-5xl mb-3">{cat.icon}</div>
               <h3 className="font-bold text-gray-900 mb-1 text-sm">{cat.name}</h3>
@@ -83,12 +167,33 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Hot Deals */}
-      <section id="offerte" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
-          <span className="animate-pulse">🔥</span> Top Offerte Oggi
-        </h2>
+      {/* Products Section */}
+      <section id="offerte" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
+        {/* Header con risultati ricerca */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <h2 className="text-3xl font-bold flex items-center gap-3">
+            {searchQuery ? (
+              <>
+                <span>🔍</span>
+                <span className="break-all">Risultati per &quot;{searchQuery}&quot;</span>
+              </>
+            ) : (
+              <>
+                <span className="animate-pulse">🔥</span>
+                Top Offerte Oggi
+              </>
+            )}
+          </h2>
+          
+          {/* Contatore risultati */}
+          {searchQuery && (
+            <div className="text-sm text-gray-600 bg-gray-100 px-4 py-2 rounded-full whitespace-nowrap">
+              {filteredProducts.length} {filteredProducts.length === 1 ? 'prodotto trovato' : 'prodotti trovati'}
+            </div>
+          )}
+        </div>
 
+        {/* Loading State */}
         {loading && (
           <div className="text-center py-20">
             <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600"></div>
@@ -96,54 +201,93 @@ export default function Home() {
           </div>
         )}
 
+        {/* Error State */}
         {error && (
           <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-8 text-center">
             <p className="text-red-600 font-semibold text-lg">❌ {error}</p>
           </div>
         )}
 
-        {!loading && !error && products.length === 0 && (
-          <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-8 text-center">
-            <p className="text-yellow-800 font-semibold">⚠️ Nessun prodotto disponibile</p>
+        {/* No Results State (quando c'è ricerca ma 0 risultati) */}
+        {!loading && !error && searchQuery && filteredProducts.length === 0 && (
+          <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-12 text-center">
+            <div className="text-6xl mb-4">🔍</div>
+            <p className="text-yellow-800 font-semibold text-xl mb-2">
+              Nessun prodotto trovato per &quot;{searchQuery}&quot;
+            </p>
+            <p className="text-yellow-700 mb-6">
+              Prova a cercare con parole chiave diverse o più generiche
+            </p>
+            <button
+              onClick={clearSearch}
+              className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-full font-semibold transition"
+            >
+              Mostra tutti i prodotti
+            </button>
           </div>
         )}
 
-        {!loading && !error && products.length > 0 && (
+        {/* Empty State (nessun prodotto nel DB) */}
+        {!loading && !error && !searchQuery && products.length === 0 && (
+          <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl p-8 text-center">
+            <p className="text-gray-600 font-semibold">⚠️ Nessun prodotto disponibile</p>
+          </div>
+        )}
+
+        {/* Products Grid */}
+        {!loading && !error && filteredProducts.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )}
       </section>
 
-      {/* Features - Testo più scuro */}
-      <section id="come-funziona" className="bg-white py-16 mt-12">
+      {/* Features Section */}
+      <section className="bg-white py-16 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-10 text-center">
-            <div>
+          <div className="grid md:grid-cols-3 gap-8 text-center">
+            <div className="p-6">
               <div className="text-5xl mb-4">📊</div>
-              <h3 className="text-lg font-bold mb-2 text-gray-900">Storico Prezzi</h3>
-              <p className="text-gray-700 text-sm">Visualizza l'andamento dei prezzi negli ultimi 90 giorni</p>
+              <h3 className="text-xl font-bold mb-2">Storico Prezzi</h3>
+              <p className="text-gray-600">
+                Tracciamo i prezzi nel tempo per aiutarti a comprare al momento giusto
+              </p>
             </div>
-            <div>
+            <div className="p-6">
               <div className="text-5xl mb-4">🔔</div>
-              <h3 className="text-lg font-bold mb-2 text-gray-900">Alert Automatici</h3>
-              <p className="text-gray-700 text-sm">Ti avvisiamo quando il prezzo scende</p>
+              <h3 className="text-xl font-bold mb-2">Alert Automatici</h3>
+              <p className="text-gray-600">
+                Ricevi notifiche quando il prezzo scende sotto la tua soglia
+              </p>
             </div>
-            <div>
-              <div className="text-5xl mb-4">🆕</div>
-              <h3 className="text-lg font-bold mb-2 text-gray-900">Nuovo + Usato</h3>
-              <p className="text-gray-700 text-sm">Confronta prezzi nuovo e usato</p>
-            </div>
-            <div>
-              <div className="text-5xl mb-4">⚡</div>
-              <h3 className="text-lg font-bold mb-2 text-gray-900">Real-Time</h3>
-              <p className="text-gray-700 text-sm">Aggiornamenti ogni 2-6 ore</p>
+            <div className="p-6">
+              <div className="text-5xl mb-4">🆚</div>
+              <h3 className="text-xl font-bold mb-2">Nuovo vs Usato</h3>
+              <p className="text-gray-600">
+                Confronta prezzi nuovo dai retailer e usato da Subito.it
+              </p>
             </div>
           </div>
         </div>
       </section>
     </main>
+  );
+}
+
+// Componente principale con Suspense
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600"></div>
+          <p className="mt-6 text-gray-600 font-medium">Caricamento...</p>
+        </div>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   );
 }
