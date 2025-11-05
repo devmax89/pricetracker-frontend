@@ -60,3 +60,8 @@ export async function getProductHistory(id: string, days: number = 30) {
   const response = await fetchAPI(`/products/${id}/history?days=${days}`);
   return response.data || [];
 }
+
+export async function getCategories() {
+  const response = await fetchAPI('/categories');
+  return response.data || [];
+}

@@ -3,16 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/ProductCard';
-import { getProducts } from '@/lib/api';
-
-const categories = [
-  { icon: '🎮', name: 'Schede Video', slug: 'gpu', desc: 'RTX 4090, RX 7900 XT' },
-  { icon: '🧠', name: 'Processori', slug: 'cpu', desc: 'Ryzen 9, Intel i9' },
-  { icon: '🕹️', name: 'Console', slug: 'console', desc: 'PS5, Xbox Series X' },
-  { icon: '💻', name: 'Laptop Gaming', slug: 'laptop', desc: 'ROG, Legion' },
-  { icon: '🖥️', name: 'Monitor', slug: 'monitor', desc: '144Hz, 4K, OLED' },
-  { icon: '⌨️', name: 'Periferiche', slug: 'periferiche', desc: 'Mouse, Tastiere' },
-];
+import { getProducts, getCategories } from '@/lib/api';
 
 // Componente separato per gestire searchParams
 function SearchContent() {
@@ -20,6 +11,7 @@ function SearchContent() {
   const searchParams = useSearchParams();
   
   const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,23 +20,27 @@ function SearchContent() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || '');
 
-  // Carica prodotti all'avvio
+  // Carica prodotti e categorie all'avvio
   useEffect(() => {
-    async function fetchProducts() {
+    async function fetchData() {
       try {
         setLoading(true);
-        const data = await getProducts();
-        setProducts(data);
+        const [productsData, categoriesData] = await Promise.all([
+          getProducts(),
+          getCategories()
+        ]);
+        setProducts(productsData);
+        setCategories(categoriesData);
         setError(null);
       } catch (err: any) {
-        console.error('Error fetching products:', err);
-        setError(err.message || 'Errore nel caricamento dei prodotti');
+        console.error('Error fetching data:', err);
+        setError(err.message || 'Errore nel caricamento dei dati');
       } finally {
         setLoading(false);
       }
     }
 
-    fetchProducts();
+    fetchData();
   }, []);
 
   // Filtra prodotti quando cambia la ricerca o categoria
@@ -186,23 +182,34 @@ function SearchContent() {
       {/* Categories */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h2 className="text-2xl font-bold mb-6 text-gray-800">Esplora per Categoria</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories.map((cat) => (
-            <div
-              key={cat.slug}
-              onClick={() => handleCategoryClick(cat.slug)}
-              className={`bg-white rounded-2xl p-6 text-center hover:shadow-xl transition-all cursor-pointer border-2 ${
-                activeCategory === cat.slug
-                  ? 'border-purple-500 ring-4 ring-purple-200 shadow-lg'
-                  : 'border-transparent hover:border-purple-200'
-              }`}
-            >
-              <div className="text-5xl mb-3">{cat.icon}</div>
-              <h3 className="font-bold text-gray-900 mb-1 text-sm">{cat.name}</h3>
-              <p className="text-xs text-gray-500">{cat.desc}</p>
-            </div>
-          ))}
-        </div>
+        
+        {/* Loading categories */}
+        {loading && categories.length === 0 && (
+          <div className="text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+          </div>
+        )}
+        
+        {/* Categories grid */}
+        {categories.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {categories.map((cat) => (
+              <div
+                key={cat.slug}
+                onClick={() => handleCategoryClick(cat.slug)}
+                className={`bg-white rounded-2xl p-6 text-center hover:shadow-xl transition-all cursor-pointer border-2 ${
+                  activeCategory === cat.slug
+                    ? 'border-purple-500 ring-4 ring-purple-200 shadow-lg'
+                    : 'border-transparent hover:border-purple-200'
+                }`}
+              >
+                <div className="text-5xl mb-3">{cat.icon}</div>
+                <h3 className="font-bold text-gray-900 mb-1 text-sm">{cat.name_plural}</h3>
+                <p className="text-xs text-gray-500">{cat.product_count} prodotti</p>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Products Section */}
@@ -219,7 +226,7 @@ function SearchContent() {
               ) : activeCategory ? (
                 <>
                   <span>{categories.find(c => c.slug === activeCategory)?.icon}</span>
-                  {categories.find(c => c.slug === activeCategory)?.name}
+                  {categories.find(c => c.slug === activeCategory)?.name_plural}
                 </>
               ) : (
                 <>
@@ -245,7 +252,7 @@ function SearchContent() {
                   onClick={clearCategory}
                   className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-semibold hover:bg-purple-200 transition"
                 >
-                  <span>Categoria: {categories.find(c => c.slug === activeCategory)?.name}</span>
+                  <span>Categoria: {categories.find(c => c.slug === activeCategory)?.name_plural}</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -299,7 +306,7 @@ function SearchContent() {
             <p className="text-yellow-800 font-semibold text-xl mb-2">
               Nessun prodotto trovato
               {searchQuery && ` per "${searchQuery}"`}
-              {activeCategory && ` nella categoria ${categories.find(c => c.slug === activeCategory)?.name}`}
+              {activeCategory && ` nella categoria ${categories.find(c => c.slug === activeCategory)?.name_plural}`}
             </p>
             <p className="text-yellow-700 mb-6">
               Prova a {searchQuery ? 'cercare con parole chiave diverse' : 'selezionare un\'altra categoria'} o rimuovi i filtri
