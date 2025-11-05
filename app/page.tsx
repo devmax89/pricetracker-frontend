@@ -24,8 +24,9 @@ function SearchContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Stato ricerca
+  // Stato ricerca e categoria
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+  const [activeCategory, setActiveCategory] = useState(searchParams.get('category') || '');
 
   // Carica prodotti all'avvio
   useEffect(() => {
@@ -46,30 +47,34 @@ function SearchContent() {
     fetchProducts();
   }, []);
 
-  // Filtra prodotti quando cambia la ricerca
+  // Filtra prodotti quando cambia la ricerca o categoria
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      // Se ricerca vuota, mostra tutti
-      setFilteredProducts(products);
-      return;
-    }
-
-    const query = searchQuery.toLowerCase().trim();
+    let filtered = [...products];
     
-    const filtered = products.filter(product => {
-      // Cerca in nome, brand, modello
-      const searchableText = [
-        product.name,
-        product.brand,
-        product.model,
-        product.category
-      ].join(' ').toLowerCase();
-
-      return searchableText.includes(query);
-    });
-
+    // Filtro per categoria
+    if (activeCategory) {
+      filtered = filtered.filter(product => 
+        product.category === activeCategory
+      );
+    }
+    
+    // Filtro per ricerca
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(product => {
+        const searchableText = [
+          product.name,
+          product.brand,
+          product.model,
+          product.category
+        ].join(' ').toLowerCase();
+        
+        return searchableText.includes(query);
+      });
+    }
+    
     setFilteredProducts(filtered);
-  }, [searchQuery, products]);
+  }, [searchQuery, activeCategory, products]);
 
   // Gestisce il submit della ricerca
   const handleSearch = (e: React.FormEvent) => {
@@ -91,7 +96,35 @@ function SearchContent() {
   // Resetta ricerca
   const clearSearch = () => {
     setSearchQuery('');
-    router.push('/');
+    // Mantieni categoria se attiva
+    if (activeCategory) {
+      router.push(`/?category=${activeCategory}`);
+    } else {
+      router.push('/');
+    }
+  };
+
+  // Gestisce click su categoria
+  const handleCategoryClick = (categorySlug: string) => {
+    setActiveCategory(categorySlug);
+    // Mantieni ricerca se attiva
+    const params = new URLSearchParams();
+    params.set('category', categorySlug);
+    if (searchQuery) {
+      params.set('search', searchQuery);
+    }
+    router.push(`/?${params.toString()}`);
+  };
+
+  // Rimuove filtro categoria
+  const clearCategory = () => {
+    setActiveCategory('');
+    // Mantieni ricerca se attiva
+    if (searchQuery) {
+      router.push(`/?search=${encodeURIComponent(searchQuery)}`);
+    } else {
+      router.push('/');
+    }
   };
 
   return (
@@ -157,7 +190,12 @@ function SearchContent() {
           {categories.map((cat) => (
             <div
               key={cat.slug}
-              className="bg-white rounded-2xl p-6 text-center hover:shadow-xl transition cursor-pointer border-2 border-transparent hover:border-purple-200"
+              onClick={() => handleCategoryClick(cat.slug)}
+              className={`bg-white rounded-2xl p-6 text-center hover:shadow-xl transition-all cursor-pointer border-2 ${
+                activeCategory === cat.slug
+                  ? 'border-purple-500 ring-4 ring-purple-200 shadow-lg'
+                  : 'border-transparent hover:border-purple-200'
+              }`}
             >
               <div className="text-5xl mb-3">{cat.icon}</div>
               <h3 className="font-bold text-gray-900 mb-1 text-sm">{cat.name}</h3>
@@ -169,26 +207,72 @@ function SearchContent() {
 
       {/* Products Section */}
       <section id="offerte" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
-        {/* Header con risultati ricerca */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <h2 className="text-3xl font-bold flex items-center gap-3">
-            {searchQuery ? (
-              <>
-                <span>🔍</span>
-                <span className="break-all">Risultati per &quot;{searchQuery}&quot;</span>
-              </>
-            ) : (
-              <>
-                <span className="animate-pulse">🔥</span>
-                Top Offerte Oggi
-              </>
+        {/* Header con risultati ricerca e categoria */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+            <h2 className="text-3xl font-bold flex items-center gap-3">
+              {searchQuery ? (
+                <>
+                  <span>🔍</span>
+                  <span className="break-all">Risultati per &quot;{searchQuery}&quot;</span>
+                </>
+              ) : activeCategory ? (
+                <>
+                  <span>{categories.find(c => c.slug === activeCategory)?.icon}</span>
+                  {categories.find(c => c.slug === activeCategory)?.name}
+                </>
+              ) : (
+                <>
+                  <span className="animate-pulse">🔥</span>
+                  Top Offerte Oggi
+                </>
+              )}
+            </h2>
+            
+            {/* Contatore risultati */}
+            {(searchQuery || activeCategory) && (
+              <div className="text-sm text-gray-600 bg-gray-100 px-4 py-2 rounded-full whitespace-nowrap">
+                {filteredProducts.length} {filteredProducts.length === 1 ? 'prodotto trovato' : 'prodotti trovati'}
+              </div>
             )}
-          </h2>
-          
-          {/* Contatore risultati */}
-          {searchQuery && (
-            <div className="text-sm text-gray-600 bg-gray-100 px-4 py-2 rounded-full whitespace-nowrap">
-              {filteredProducts.length} {filteredProducts.length === 1 ? 'prodotto trovato' : 'prodotti trovati'}
+          </div>
+
+          {/* Active Filters Badges */}
+          {(searchQuery || activeCategory) && (
+            <div className="flex flex-wrap gap-2">
+              {activeCategory && (
+                <button
+                  onClick={clearCategory}
+                  className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 px-4 py-2 rounded-full text-sm font-semibold hover:bg-purple-200 transition"
+                >
+                  <span>Categoria: {categories.find(c => c.slug === activeCategory)?.name}</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+              {searchQuery && (
+                <button
+                  onClick={clearSearch}
+                  className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold hover:bg-blue-200 transition"
+                >
+                  <span>Cerca: &quot;{searchQuery}&quot;</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+              {(searchQuery || activeCategory) && (
+                <button
+                  onClick={() => {
+                    clearSearch();
+                    clearCategory();
+                  }}
+                  className="inline-flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm font-semibold hover:bg-gray-200 transition"
+                >
+                  Rimuovi tutti i filtri
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -208,27 +292,50 @@ function SearchContent() {
           </div>
         )}
 
-        {/* No Results State (quando c'è ricerca ma 0 risultati) */}
-        {!loading && !error && searchQuery && filteredProducts.length === 0 && (
+        {/* No Results State (quando c'è ricerca/categoria ma 0 risultati) */}
+        {!loading && !error && (searchQuery || activeCategory) && filteredProducts.length === 0 && (
           <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-12 text-center">
             <div className="text-6xl mb-4">🔍</div>
             <p className="text-yellow-800 font-semibold text-xl mb-2">
-              Nessun prodotto trovato per &quot;{searchQuery}&quot;
+              Nessun prodotto trovato
+              {searchQuery && ` per "${searchQuery}"`}
+              {activeCategory && ` nella categoria ${categories.find(c => c.slug === activeCategory)?.name}`}
             </p>
             <p className="text-yellow-700 mb-6">
-              Prova a cercare con parole chiave diverse o più generiche
+              Prova a {searchQuery ? 'cercare con parole chiave diverse' : 'selezionare un\'altra categoria'} o rimuovi i filtri
             </p>
-            <button
-              onClick={clearSearch}
-              className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-full font-semibold transition"
-            >
-              Mostra tutti i prodotti
-            </button>
+            <div className="flex gap-3 justify-center">
+              {searchQuery && (
+                <button
+                  onClick={clearSearch}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-full font-semibold transition"
+                >
+                  Rimuovi ricerca
+                </button>
+              )}
+              {activeCategory && (
+                <button
+                  onClick={clearCategory}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-3 rounded-full font-semibold transition"
+                >
+                  Rimuovi categoria
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  clearSearch();
+                  clearCategory();
+                }}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-full font-semibold transition"
+              >
+                Mostra tutti i prodotti
+              </button>
+            </div>
           </div>
         )}
 
         {/* Empty State (nessun prodotto nel DB) */}
-        {!loading && !error && !searchQuery && products.length === 0 && (
+        {!loading && !error && !searchQuery && !activeCategory && products.length === 0 && (
           <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl p-8 text-center">
             <p className="text-gray-600 font-semibold">⚠️ Nessun prodotto disponibile</p>
           </div>
