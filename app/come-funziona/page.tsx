@@ -34,7 +34,7 @@ export default function ComeFunzionaPage() {
         
         setStats({
           totalProducts: productsData.count || 0,
-          totalRetailers: 4, // Amazon, MediaWorld, LDLC, Subito
+          totalRetailers: 6, // Amazon, MediaWorld, LDLC, Subito, AKInformatica, Nexths
           totalCategories: categoriesData.count || 0,
           lastUpdate: new Date().toLocaleDateString('it-IT')
         });
