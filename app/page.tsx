@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ProductCard from '@/components/ProductCard';
+import CategorySection from '@/components/CategorySection';
 import { getProducts, getCategories } from '@/lib/api';
 
 // Componente separato per gestire searchParams
@@ -137,7 +138,7 @@ function SearchContent() {
             Nuovo e Usato • Storico Prezzi • Alert Automatici
           </p>
           
-          {/* Search Bar - FIXED STYLING */}
+          {/* Search Bar */}
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
             <div className="relative flex items-center">
               <input
@@ -179,38 +180,13 @@ function SearchContent() {
         </div>
       </section>
 
-      {/* Categories */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Esplora per Categoria</h2>
-        
-        {/* Loading categories */}
-        {loading && categories.length === 0 && (
-          <div className="text-center py-8">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-          </div>
-        )}
-        
-        {/* Categories grid */}
-        {categories.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {categories.map((cat) => (
-              <div
-                key={cat.slug}
-                onClick={() => handleCategoryClick(cat.slug)}
-                className={`bg-white rounded-2xl p-6 text-center hover:shadow-xl transition-all cursor-pointer border-2 ${
-                  activeCategory === cat.slug
-                    ? 'border-purple-500 ring-4 ring-purple-200 shadow-lg'
-                    : 'border-transparent hover:border-purple-200'
-                }`}
-              >
-                <div className="text-5xl mb-3">{cat.icon}</div>
-                <h3 className="font-bold text-gray-900 mb-1 text-sm">{cat.name_plural}</h3>
-                <p className="text-xs text-gray-500">{cat.product_count} prodotti</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      {/* Categories - NUOVO COMPONENTE */}
+      <CategorySection
+        categories={categories}
+        activeCategory={activeCategory}
+        onCategoryClick={handleCategoryClick}
+        loading={loading}
+      />
 
       {/* Products Section */}
       <section id="offerte" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
@@ -350,7 +326,7 @@ function SearchContent() {
 
         {/* Products Grid */}
         {!loading && !error && filteredProducts.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Product {
   id: number;
@@ -7,7 +8,6 @@ interface Product {
   model: string;
   category: string;
   image_url?: string;
-  // ✅ AGGIUNGI QUESTI CAMPI
   new_min_price?: string;
   new_avg_price?: string;
   new_max_price?: string;
@@ -22,7 +22,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  // ✅ USA I PREZZI DALL'API invece di mock
   const newPrice = product.new_min_price 
     ? parseFloat(product.new_min_price) 
     : null;
@@ -35,17 +34,59 @@ export default function ProductCard({ product }: ProductCardProps) {
     ? Math.round(parseFloat(product.discount_percentage)) 
     : null;
 
+  // Determina quale immagine mostrare
+  const hasImage = product.image_url && product.image_url.trim() !== '';
+  
+  // Icone di fallback per categoria
+  const categoryIcons: { [key: string]: string } = {
+    'gpu': '🎮',
+    'cpu': '🖥️',
+    'console': '🎮',
+    'monitor': '📺',
+    'ssd': '💾',
+    'motherboard': '🔌',
+    'ram': '💿',
+    'psu': '⚡',
+    'cooling': '❄️',
+    'case': '📦'
+  };
+
+  const fallbackIcon = categoryIcons[product.category.toLowerCase()] || '🔧';
+
   return (
     <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all cursor-pointer flex flex-col h-full">
       {/* Immagine prodotto - altezza fissa */}
       <div 
         style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: hasImage ? '#f3f4f6' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           minHeight: '200px'
         }}
-        className="flex items-center justify-center text-white"
+        className="flex items-center justify-center relative overflow-hidden"
       >
-        <div className="text-7xl">🎮</div>
+        {hasImage ? (
+          <div className="relative w-full h-[200px]">
+            <Image
+              src={product.image_url!}
+              alt={product.name}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-contain p-4"
+              onError={(e) => {
+                // Fallback se l'immagine non carica
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const parent = target.parentElement;
+                if (parent) {
+                  parent.innerHTML = `<div class="text-7xl">${fallbackIcon}</div>`;
+                  parent.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                  parent.classList.add('flex', 'items-center', 'justify-center', 'text-white');
+                }
+              }}
+            />
+          </div>
+        ) : (
+          <div className="text-7xl text-white">{fallbackIcon}</div>
+        )}
       </div>
 
       {/* Contenuto card */}
@@ -61,7 +102,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.category === 'gpu' ? 'GPU' : 
              product.category === 'cpu' ? 'CPU' :
              product.category === 'console' ? 'CONSOLE' :
-             product.category === 'monitor' ? 'MONITOR' : 'TECH'}
+             product.category === 'monitor' ? 'MONITOR' : 
+             product.category.toUpperCase()}
           </span>
         </div>
 

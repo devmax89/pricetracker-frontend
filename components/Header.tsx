@@ -6,6 +6,27 @@ import Link from 'next/link';
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Funzione per aprire il mega menu categorie
+  const handleCategoriesClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+    
+    // Scrolla alla sezione categorie
+    const categoriesSection = document.getElementById('categorie');
+    if (categoriesSection) {
+      categoriesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    // Dopo lo scroll, trigghera l'apertura del menu
+    setTimeout(() => {
+      // Cerca il bottone "Vedi tutte" e cliccalo
+      const viewAllButton = document.querySelector('[data-open-categories]') as HTMLButtonElement;
+      if (viewAllButton) {
+        viewAllButton.click();
+      }
+    }, 500);
+  };
+
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -21,9 +42,12 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            <Link href="/#categorie" className="text-gray-700 hover:text-blue-600 font-medium transition">
+            <button
+              onClick={handleCategoriesClick}
+              className="text-gray-700 hover:text-blue-600 font-medium transition cursor-pointer"
+            >
               Categorie
-            </Link>
+            </button>
             <Link href="/#offerte" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Offerte
             </Link>
@@ -58,13 +82,12 @@ export default function Header() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 border-t border-gray-100 pt-4 space-y-3">
-            <Link
-              href="/#categorie"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition"
+            <button
+              onClick={handleCategoriesClick}
+              className="block w-full text-left text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition"
             >
               📂 Categorie
-            </Link>
+            </button>
             <Link
               href="/#offerte"
               onClick={() => setMobileMenuOpen(false)}
