@@ -290,15 +290,10 @@ export default function ProductPage() {
         {/* Product Header */}
         <div className="bg-white rounded-xl shadow-lg p-4 md:p-8 mb-6">
           <div className="grid md:grid-cols-2 gap-4 md:gap-8">
-            {/* Image */}
+            {/* Image - FIX: SEMPRE GRIGIO CHIARO */}
             <div 
-              style={{ 
-                background: !hasImage 
-                  ? '#f3f4f6' 
-                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                minHeight: '300px'
-              }}
-              className="rounded-lg flex items-center justify-center relative"
+              className="bg-white rounded-lg flex items-center justify-center relative"
+              style={{ minHeight: '300px' }}
             >
               {hasImage ? (
                 <div className="relative w-full h-[300px] md:h-[400px]">
@@ -312,7 +307,7 @@ export default function ProductPage() {
                   />
                 </div>
               ) : (
-                <div className="text-7xl md:text-9xl text-white">{fallbackIcon}</div>
+                <div className="text-7xl md:text-9xl text-gray-400">{fallbackIcon}</div>
               )}
             </div>
 

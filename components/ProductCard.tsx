@@ -58,10 +58,10 @@ export default function ProductCard({ product }: ProductCardProps) {
       href={`/products/${product.id}`}
       className="block bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col h-full group"
     >
-      {/* Immagine prodotto - altezza fissa */}
+      {/* Immagine prodotto - Sfondo bianco SE c'è immagine, viola SE manca */}
       <div 
         style={{
-          background: hasImage ? '#f3f4f6' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: hasImage ? '#ffffff' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           minHeight: '200px'
         }}
         className="flex items-center justify-center relative overflow-hidden"
@@ -75,14 +75,13 @@ export default function ProductCard({ product }: ProductCardProps) {
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
-                // Fallback se l'immagine non carica
+                // Fallback se l'immagine non carica -> torna al viola con icona
                 const target = e.target as HTMLImageElement;
                 target.style.display = 'none';
                 const parent = target.parentElement;
-                if (parent) {
-                  parent.innerHTML = `<div class="text-7xl">${fallbackIcon}</div>`;
-                  parent.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                  parent.classList.add('flex', 'items-center', 'justify-center', 'text-white');
+                if (parent && parent.parentElement) {
+                  parent.parentElement.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                  parent.innerHTML = `<div class="text-7xl text-white">${fallbackIcon}</div>`;
                 }
               }}
             />
