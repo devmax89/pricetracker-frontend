@@ -34,6 +34,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'media.ldlc.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'assets.mmsrg.com',
+      },
     ],
   },
 }

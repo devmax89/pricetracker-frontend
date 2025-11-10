@@ -54,7 +54,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   const fallbackIcon = categoryIcons[product.category.toLowerCase()] || '🔧';
 
   return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all cursor-pointer flex flex-col h-full">
+    <Link 
+      href={`/products/${product.id}`}
+      className="block bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer flex flex-col h-full group"
+    >
       {/* Immagine prodotto - altezza fissa */}
       <div 
         style={{
@@ -70,7 +73,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               alt={product.name}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-contain p-4"
+              className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 // Fallback se l'immagine non carica
                 const target = e.target as HTMLImageElement;
@@ -85,14 +88,14 @@ export default function ProductCard({ product }: ProductCardProps) {
             />
           </div>
         ) : (
-          <div className="text-7xl text-white">{fallbackIcon}</div>
+          <div className="text-7xl text-white group-hover:scale-110 transition-transform duration-300">{fallbackIcon}</div>
         )}
       </div>
 
       {/* Contenuto card */}
       <div className="p-5 flex-1 flex flex-col">
         {/* Nome prodotto */}
-        <h3 className="font-bold text-base mb-3 text-gray-900 line-clamp-2 min-h-[3rem]">
+        <h3 className="font-bold text-base mb-3 text-gray-900 line-clamp-2 min-h-[3rem] group-hover:text-blue-600 transition-colors">
           {product.name}
         </h3>
 
@@ -108,7 +111,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Sezione prezzi */}
-        <div className="flex-1">
+        <div className="flex-1 mb-4">
           {/* Prezzo NUOVO con badge sconto */}
           {newPrice && (
             <div className="flex justify-between items-center mb-3">
@@ -128,7 +131,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           {/* Prezzo USATO */}
           {usedPrice && (
-            <div className="mb-4">
+            <div className="mb-2">
               <span className="text-xs text-gray-500 uppercase font-semibold mb-1 block">
                 Usato da
               </span>
@@ -146,22 +149,16 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        {/* Bottoni */}
-        <div className="flex gap-2 pt-4 border-t border-gray-200">
-          <Link 
-            href={`/products/${product.id}`}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center py-2.5 rounded-lg font-semibold text-sm transition"
-          >
-            Vedi Nuovo
-          </Link>
-          <Link 
-            href={`/products/${product.id}#usato`}
-            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-center py-2.5 rounded-lg font-semibold text-sm transition border-2 border-gray-300"
-          >
-            Vedi Usato
-          </Link>
+        {/* Singolo bottone "Vedi Prezzi" */}
+        <div className="pt-4 border-t border-gray-200">
+          <div className="bg-blue-600 group-hover:bg-blue-700 text-white text-center py-3 rounded-lg font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2">
+            <span>Vedi Prezzi</span>
+            <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

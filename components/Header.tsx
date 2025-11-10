@@ -1,25 +1,41 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
-  // Funzione per aprire il mega menu categorie
+  // Funzione per gestire click su Categorie
   const handleCategoriesClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setMobileMenuOpen(false);
     
-    // Scrolla alla sezione categorie
+    // Se NON siamo in homepage, naviga prima alla home
+    if (pathname !== '/') {
+      router.push('/');
+      // Aspetta che la pagina carichi, poi scrolla
+      setTimeout(() => {
+        scrollToCategories();
+      }, 300);
+    } else {
+      // Siamo già in home, scrolla direttamente
+      scrollToCategories();
+    }
+  };
+
+  // Funzione helper per scroll alle categorie
+  const scrollToCategories = () => {
     const categoriesSection = document.getElementById('categorie');
     if (categoriesSection) {
       categoriesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     
-    // Dopo lo scroll, trigghera l'apertura del menu
+    // Dopo lo scroll, apri il modal categorie
     setTimeout(() => {
-      // Cerca il bottone "Vedi tutte" e cliccalo
       const viewAllButton = document.querySelector('[data-open-categories]') as HTMLButtonElement;
       if (viewAllButton) {
         viewAllButton.click();
@@ -48,13 +64,13 @@ export default function Header() {
             >
               Categorie
             </button>
-            <Link href="/#offerte" className="text-gray-700 hover:text-blue-600 font-medium transition">
+            <Link href="/offerte" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Offerte
             </Link>
             <Link href="/come-funziona" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Come Funziona
             </Link>
-            <Link href="/#alert" className="text-gray-700 hover:text-blue-600 font-medium transition">
+            <Link href="/alert" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Alert
             </Link>
           </nav>
@@ -89,7 +105,7 @@ export default function Header() {
               📂 Categorie
             </button>
             <Link
-              href="/#offerte"
+              href="/offerte"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition"
             >
@@ -103,7 +119,7 @@ export default function Header() {
               ❓ Come Funziona
             </Link>
             <Link
-              href="/#alert"
+              href="/alert"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition"
             >

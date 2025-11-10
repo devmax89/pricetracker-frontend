@@ -341,7 +341,7 @@ export default function ComeFunzionaPage() {
               Vai alla Homepage
             </a>
             <a 
-              href="/#offerte"
+              href="/offerte"
               className="bg-purple-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-purple-700 transition border-2 border-white shadow-xl"
             >
               Vedi Top Offerte
