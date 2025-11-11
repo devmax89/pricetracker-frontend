@@ -67,11 +67,14 @@ export default function Header() {
             <Link href="/offerte" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Offerte
             </Link>
-            <Link href="/come-funziona" className="text-gray-700 hover:text-blue-600 font-medium transition">
-              Come Funziona
+            <Link href="/usato" className="text-gray-700 hover:text-blue-600 font-medium transition">
+              Usato
             </Link>
             <Link href="/alert" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Alert
+            </Link>
+            <Link href="/come-funziona" className="text-gray-700 hover:text-blue-600 font-medium transition">
+              Come Funziona
             </Link>
           </nav>
 
@@ -112,11 +115,11 @@ export default function Header() {
               🔥 Offerte
             </Link>
             <Link
-              href="/come-funziona"
+              href="/usato"
               onClick={() => setMobileMenuOpen(false)}
               className="block text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition"
             >
-              ❓ Come Funziona
+              💰 Usato
             </Link>
             <Link
               href="/alert"
@@ -124,6 +127,13 @@ export default function Header() {
               className="block text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition"
             >
               🔔 Alert
+            </Link>
+            <Link
+              href="/come-funziona"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition"
+            >
+              ❓ Come Funziona
             </Link>
           </nav>
         )}

@@ -15,10 +15,9 @@ interface Product {
   new_min_price?: string;
   new_max_price?: string;
   used_min_price?: string;
-  discount_percentage?: string;
 }
 
-export default function OffertePage() {
+export default function UsatoPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -38,21 +37,23 @@ export default function OffertePage() {
     fetchProducts();
   }, []);
 
-  // Filtra e ordina per sconto (migliori offerte prime)
-  const productsWithDiscounts = products
-    .map(product => ({
-      ...product,
-      discountValue: product.discount_percentage 
-        ? parseFloat(product.discount_percentage) 
-        : 0
-    }))
-    .filter(p => p.discountValue > 0) // Solo prodotti con sconto
-    .sort((a, b) => b.discountValue - a.discountValue); // Ordina per sconto decrescente
+  // Filtra prodotti con usato disponibile e calcola risparmio
+  const productsWithUsed = products
+    .map(product => {
+      const newPrice = product.new_min_price ? parseFloat(product.new_min_price) : 0;
+      const usedPrice = product.used_min_price ? parseFloat(product.used_min_price) : 0;
+      const savings = newPrice && usedPrice ? newPrice - usedPrice : 0;
+      const savingsPercent = newPrice && usedPrice ? ((newPrice - usedPrice) / newPrice) * 100 : 0;
+      
+      return { ...product, savings, savingsPercent, newPrice, usedPrice };
+    })
+    .filter(p => p.usedPrice > 0 && p.savings > 0) // Solo prodotti con usato disponibile
+    .sort((a, b) => b.savings - a.savings); // Ordina per risparmio decrescente
 
   // Filtra per categoria
   const filteredProducts = selectedCategory === 'all'
-    ? productsWithDiscounts
-    : productsWithDiscounts.filter(p => p.category.toLowerCase() === selectedCategory);
+    ? productsWithUsed
+    : productsWithUsed.filter(p => p.category.toLowerCase() === selectedCategory);
 
   // Categorie uniche
   const categories = Array.from(new Set(products.map(p => p.category.toLowerCase())));
@@ -71,46 +72,40 @@ export default function OffertePage() {
     'case': '📦'
   };
 
+  // Calcola statistiche
+  const totalSavings = productsWithUsed.reduce((sum, p) => sum + p.savings, 0);
+  const avgSavings = productsWithUsed.length > 0 ? totalSavings / productsWithUsed.length : 0;
+  const maxSavings = productsWithUsed.length > 0 ? productsWithUsed[0].savings : 0;
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-red-500 via-pink-500 to-purple-600 text-white py-16 md:py-20">
+      <section className="bg-gradient-to-br from-green-500 via-emerald-500 to-teal-600 text-white py-16 md:py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="text-6xl md:text-7xl mb-6">🔥</div>
+          <div className="text-6xl md:text-7xl mb-6">💰</div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            Migliori Offerte Tech
+            Risparmia con l'Usato
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto">
-            I prodotti con gli sconti più alti rispetto al prezzo massimo recente. 
-            Aggiornato in tempo reale!
+            Confronta prezzi tra nuovo e usato. Include annunci privati da Subito.it 
+            e prodotti ricondizionati/come nuovo dai retailer.
           </p>
           
           {/* Stats */}
-          {!loading && (
+          {!loading && productsWithUsed.length > 0 && (
             <div className="flex flex-wrap justify-center gap-6 md:gap-8 mt-12">
               <div className="bg-white/20 backdrop-blur-sm rounded-2xl px-6 py-4">
-                <div className="text-3xl font-bold">{productsWithDiscounts.length}</div>
-                <div className="text-sm text-white/80">Offerte Attive</div>
+                <div className="text-3xl font-bold">{productsWithUsed.length}</div>
+                <div className="text-sm text-white/80">Prodotti Usato</div>
               </div>
-              {productsWithDiscounts.length > 0 && (
-                <>
-                  <div className="bg-white/20 backdrop-blur-sm rounded-2xl px-6 py-4">
-                    <div className="text-3xl font-bold">
-                      -{Math.round(productsWithDiscounts[0].discountValue)}%
-                    </div>
-                    <div className="text-sm text-white/80">Sconto Massimo</div>
-                  </div>
-                  <div className="bg-white/20 backdrop-blur-sm rounded-2xl px-6 py-4">
-                    <div className="text-3xl font-bold">
-                      {Math.round(
-                        productsWithDiscounts.reduce((sum, p) => sum + p.discountValue, 0) / 
-                        productsWithDiscounts.length
-                      )}%
-                    </div>
-                    <div className="text-sm text-white/80">Sconto Medio</div>
-                  </div>
-                </>
-              )}
+              <div className="bg-white/20 backdrop-blur-sm rounded-2xl px-6 py-4">
+                <div className="text-3xl font-bold">€{Math.round(maxSavings)}</div>
+                <div className="text-sm text-white/80">Risparmio Max</div>
+              </div>
+              <div className="bg-white/20 backdrop-blur-sm rounded-2xl px-6 py-4">
+                <div className="text-3xl font-bold">€{Math.round(avgSavings)}</div>
+                <div className="text-sm text-white/80">Risparmio Medio</div>
+              </div>
             </div>
           )}
         </div>
@@ -127,14 +122,14 @@ export default function OffertePage() {
               onClick={() => setSelectedCategory('all')}
               className={`px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition ${
                 selectedCategory === 'all'
-                  ? 'bg-red-600 text-white'
+                  ? 'bg-green-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              🔥 Tutte ({productsWithDiscounts.length})
+              💰 Tutti ({productsWithUsed.length})
             </button>
             {categories.map(cat => {
-              const count = productsWithDiscounts.filter(p => p.category.toLowerCase() === cat).length;
+              const count = productsWithUsed.filter(p => p.category.toLowerCase() === cat).length;
               if (count === 0) return null;
               
               return (
@@ -143,7 +138,7 @@ export default function OffertePage() {
                   onClick={() => setSelectedCategory(cat)}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition ${
                     selectedCategory === cat
-                      ? 'bg-red-600 text-white'
+                      ? 'bg-green-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -160,26 +155,22 @@ export default function OffertePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {loading ? (
             <div className="text-center py-20">
-              <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-2 border-red-600"></div>
-              <p className="mt-4 text-gray-600">Caricamento offerte...</p>
+              <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-2 border-green-600"></div>
+              <p className="mt-4 text-gray-600">Caricamento prodotti usato...</p>
             </div>
           ) : filteredProducts.length > 0 ? (
             <>
-              {/* Top 3 Deals - Large Cards */}
+              {/* Top 3 Maggiori Risparmi */}
               {filteredProducts.length >= 3 && (
                 <div className="mb-12">
                   <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
                     <span>🏆</span>
-                    Top 3 Offerte del Momento
+                    Top 3 Maggiori Risparmi
                   </h2>
-                  <div className="grid md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                     {filteredProducts.slice(0, 3).map((product, idx) => {
                       const hasImage = product.image_url && product.image_url.trim() !== '';
                       const fallbackIcon = categoryIcons[product.category.toLowerCase()] || '🔧';
-                      const newPrice = product.new_min_price 
-                        ? parseFloat(product.new_min_price) 
-                        : null;
-                      const discount = Math.round(product.discountValue);
 
                       return (
                         <Link
@@ -188,7 +179,7 @@ export default function OffertePage() {
                           className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group relative"
                         >
                           {/* Badge Posizione */}
-                          <div className={`absolute top-4 left-4 z-10 w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold shadow-lg ${
+                          <div className={`absolute top-2 md:top-4 left-2 md:left-4 z-10 w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center text-base md:text-xl font-bold shadow-lg ${
                             idx === 0 ? 'bg-yellow-400 text-yellow-900' :
                             idx === 1 ? 'bg-gray-300 text-gray-700' :
                             'bg-orange-400 text-orange-900'
@@ -196,49 +187,59 @@ export default function OffertePage() {
                             {idx + 1}
                           </div>
 
-                          {/* Badge Sconto */}
-                          <div className="absolute top-4 right-4 z-10 bg-red-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-lg">
-                            -{discount}%
+                          {/* Badge Risparmio */}
+                          <div className="absolute top-2 md:top-4 right-2 md:right-4 z-10 bg-green-600 text-white px-2 py-1 md:px-4 md:py-2 rounded-lg md:rounded-xl font-bold shadow-lg text-xs md:text-base">
+                            €{Math.round(product.savings)}
                           </div>
 
-                          {/* Immagine - BIANCO se c'è, VIOLA se manca */}
+                          {/* Immagine */}
                           <div
                             style={{
                               background: hasImage ? '#ffffff' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                              minHeight: '250px'
+                              minHeight: '140px'
                             }}
-                            className="flex items-center justify-center relative"
+                            className="md:min-h-[250px] flex items-center justify-center relative"
                           >
                             {hasImage ? (
-                              <div className="relative w-full h-[250px]">
+                              <div className="relative w-full h-[140px] md:h-[250px]">
                                 <Image
                                   src={product.image_url!}
                                   alt={product.name}
                                   fill
-                                  sizes="(max-width: 768px) 100vw, 33vw"
-                                  className="object-contain p-6 group-hover:scale-105 transition-transform duration-300"
+                                  sizes="(max-width: 768px) 50vw, 33vw"
+                                  className="object-contain p-3 md:p-6 group-hover:scale-105 transition-transform duration-300"
                                 />
                               </div>
                             ) : (
-                              <div className="text-8xl text-white">{fallbackIcon}</div>
+                              <div className="text-5xl md:text-8xl text-white">{fallbackIcon}</div>
                             )}
                           </div>
 
                           {/* Info */}
-                          <div className="p-6">
-                            <h3 className="font-bold text-lg mb-3 text-gray-900 line-clamp-2 min-h-[3.5rem] group-hover:text-red-600 transition-colors">
+                          <div className="p-3 md:p-6">
+                            <h3 className="font-bold text-sm md:text-lg mb-2 md:mb-3 text-gray-900 line-clamp-2 min-h-[2.5rem] md:min-h-[3.5rem] group-hover:text-green-600 transition-colors">
                               {product.name}
                             </h3>
 
-                            <div className="flex items-baseline justify-between">
-                              {newPrice && (
-                                <div>
-                                  <span className="text-sm text-gray-500 block mb-1">Prezzo attuale</span>
-                                  <span className="text-3xl font-bold text-red-600">
-                                    €{newPrice.toFixed(0)}
-                                  </span>
-                                </div>
-                              )}
+                            <div className="grid grid-cols-2 gap-2 md:gap-3 text-xs md:text-sm">
+                              <div>
+                                <span className="text-gray-500 block mb-1">Nuovo da</span>
+                                <span className="text-base md:text-xl font-bold text-gray-700">
+                                  €{product.newPrice.toFixed(0)}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-gray-500 block mb-1">Usato da</span>
+                                <span className="text-base md:text-xl font-bold text-green-600">
+                                  €{product.usedPrice.toFixed(0)}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="mt-2 md:mt-3 text-center bg-green-50 py-1.5 md:py-2 rounded-lg">
+                              <span className="text-green-700 font-bold text-xs md:text-base">
+                                Risparmi {Math.round(product.savingsPercent)}%
+                              </span>
                             </div>
                           </div>
                         </Link>
@@ -248,21 +249,17 @@ export default function OffertePage() {
                 </div>
               )}
 
-              {/* Altre Offerte */}
+              {/* Altri Prodotti Usato */}
               {filteredProducts.length > 3 && (
                 <>
                   <h2 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-                    <span>💎</span>
-                    Altre Offerte
+                    <span>♻️</span>
+                    Altri Prodotti Usato
                   </h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                     {filteredProducts.slice(3).map((product) => {
                       const hasImage = product.image_url && product.image_url.trim() !== '';
                       const fallbackIcon = categoryIcons[product.category.toLowerCase()] || '🔧';
-                      const newPrice = product.new_min_price 
-                        ? parseFloat(product.new_min_price) 
-                        : null;
-                      const discount = Math.round(product.discountValue);
 
                       return (
                         <Link
@@ -270,12 +267,12 @@ export default function OffertePage() {
                           href={`/products/${product.id}`}
                           className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group relative"
                         >
-                          {/* Badge Sconto */}
-                          <div className="absolute top-3 right-3 z-10 bg-red-600 text-white px-3 py-1 rounded-lg font-bold shadow-md text-sm">
-                            -{discount}%
+                          {/* Badge Risparmio */}
+                          <div className="absolute top-3 right-3 z-10 bg-green-600 text-white px-3 py-1 rounded-lg font-bold shadow-md text-sm">
+                            -€{Math.round(product.savings)}
                           </div>
 
-                          {/* Immagine - BIANCO se c'è, VIOLA se manca */}
+                          {/* Immagine */}
                           <div
                             style={{
                               background: hasImage ? '#ffffff' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -300,18 +297,21 @@ export default function OffertePage() {
 
                           {/* Info */}
                           <div className="p-4">
-                            <h3 className="font-bold text-sm mb-2 text-gray-900 line-clamp-2 min-h-[2.5rem] group-hover:text-red-600 transition-colors">
+                            <h3 className="font-bold text-sm mb-2 text-gray-900 line-clamp-2 min-h-[2.5rem] group-hover:text-green-600 transition-colors">
                               {product.name}
                             </h3>
 
-                            {newPrice && (
-                              <div>
-                                <span className="text-xs text-gray-500">da</span>
-                                <div className="text-xl font-bold text-red-600">
-                                  €{newPrice.toFixed(0)}
-                                </div>
-                              </div>
-                            )}
+                            <div className="flex items-center justify-between text-xs mb-2">
+                              <span className="text-gray-500">Nuovo: €{product.newPrice.toFixed(0)}</span>
+                            </div>
+
+                            <div className="text-xl font-bold text-green-600">
+                              €{product.usedPrice.toFixed(0)}
+                            </div>
+
+                            <div className="text-xs text-green-600 font-semibold mt-1">
+                              Risparmi {Math.round(product.savingsPercent)}%
+                            </div>
                           </div>
                         </Link>
                       );
@@ -322,19 +322,19 @@ export default function OffertePage() {
             </>
           ) : (
             <div className="text-center py-20">
-              <div className="text-6xl mb-4">😔</div>
+              <div className="text-6xl mb-4">📦</div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                Nessuna offerta al momento
+                Nessun prodotto usato disponibile
               </h2>
               <p className="text-gray-600 mb-8">
                 {selectedCategory === 'all' 
-                  ? 'Torna più tardi per scoprire nuove offerte!'
-                  : `Nessuna offerta nella categoria ${selectedCategory.toUpperCase()}`
+                  ? 'Al momento non ci sono prodotti usato disponibili. Torna più tardi!'
+                  : `Nessun prodotto usato nella categoria ${selectedCategory.toUpperCase()}`
                 }
               </p>
               <Link
                 href="/"
-                className="inline-block bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-4 rounded-xl transition"
+                className="inline-block bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-4 rounded-xl transition"
               >
                 Torna alla Homepage
               </Link>
@@ -348,27 +348,27 @@ export default function OffertePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div className="p-6">
-              <div className="text-5xl mb-4">⚡</div>
-              <h3 className="text-xl font-bold mb-2 text-gray-800">Aggiornamenti Real-Time</h3>
+              <div className="text-5xl mb-4">♻️</div>
+              <h3 className="text-xl font-bold mb-2 text-gray-800">Usato da Privati</h3>
               <p className="text-gray-600">
-                Gli sconti vengono calcolati confrontando il prezzo attuale con il massimo 
-                degli ultimi 90 giorni.
+                Annunci usato da Subito.it con dettagli su condizione, 
+                località e prezzo. Risparmia acquistando da privati.
               </p>
             </div>
             <div className="p-6">
-              <div className="text-5xl mb-4">🔔</div>
-              <h3 className="text-xl font-bold mb-2 text-gray-800">Crea Alert</h3>
+              <div className="text-5xl mb-4">✨</div>
+              <h3 className="text-xl font-bold mb-2 text-gray-800">Ricondizionati</h3>
               <p className="text-gray-600">
-                Non vuoi perdere l'occasione? Crea un alert di prezzo per ricevere 
-                notifiche quando scende ancora!
+                Prodotti ricondizionati e "come nuovo" da retailer come LDLC. 
+                Garanzia inclusa con prezzi ridotti.
               </p>
             </div>
             <div className="p-6">
-              <div className="text-5xl mb-4">🏪</div>
-              <h3 className="text-xl font-bold mb-2 text-gray-800">Più Negozi</h3>
+              <div className="text-5xl mb-4">💰</div>
+              <h3 className="text-xl font-bold mb-2 text-gray-800">Massimo Risparmio</h3>
               <p className="text-gray-600">
-                Confrontiamo Amazon, MediaWorld, LDLC, NextHS e AK Informatica 
-                per trovare il prezzo migliore.
+                Risparmia fino al 70% rispetto al prezzo nuovo. 
+                Perfetto per chi vuole qualità a prezzi accessibili.
               </p>
             </div>
           </div>
@@ -376,20 +376,20 @@ export default function OffertePage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-gradient-to-br from-red-500 via-pink-500 to-purple-600 text-white">
+      <section className="py-16 bg-gradient-to-br from-green-500 via-emerald-500 to-teal-600 text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Non Perdere le Prossime Offerte!
+            Trova la Tua Occasione!
           </h2>
           <p className="text-xl mb-8 text-white/90">
-            Crea alert di prezzo per i prodotti che ti interessano 
-            e ricevi notifiche quando il prezzo scende.
+            Crea un alert di prezzo per essere notificato quando un prodotto 
+            usato scende sotto la tua soglia ideale.
           </p>
           <Link
             href="/alert"
-            className="inline-block bg-white text-red-600 hover:bg-gray-100 font-bold px-8 py-4 rounded-xl transition shadow-lg hover:shadow-xl"
+            className="inline-block bg-white text-green-600 hover:bg-gray-100 font-bold px-8 py-4 rounded-xl transition shadow-lg hover:shadow-xl"
           >
-            🔔 Crea il Tuo Primo Alert
+            🔔 Crea Alert di Prezzo
           </Link>
         </div>
       </section>
