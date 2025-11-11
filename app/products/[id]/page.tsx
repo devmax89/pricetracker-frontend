@@ -43,7 +43,7 @@ interface PriceItem {
   price: string;
   availability?: boolean;
   url?: string;
-  condition?: string;  // 🆕 Campo per rilevare ricondizionato
+  condition?: string;
 }
 
 interface UsedListing {
@@ -53,6 +53,10 @@ interface UsedListing {
   condition?: string;
   url: string;
   published_date?: string;
+  source?: string;  // 🆕 Nome retailer (da DB: 'source' field)
+  grading?: string;  // 🆕 Per MediaWorld Ricondizionati (es: "PRMG GRADING OOBN - 15%")
+  discount_percentage?: number;  // 🆕 Percentuale sconto (es: 22)
+  original_price?: string;  // 🆕 Prezzo originale barrato (es: "1147.49")
 }
 
 interface Prices {
@@ -161,6 +165,18 @@ export default function ProductPage() {
     } finally {
       setAlertSubmitting(false);
     }
+  };
+
+  // 🆕 Helper per estrarre il grading corto (es: "OOBN" da "PRMG GRADING OOBN - 15%")
+  const extractGrading = (gradingFull?: string): string | null => {
+    if (!gradingFull) return null;
+    const match = gradingFull.match(/([ROBN]{4})/);
+    return match ? match[1] : null;
+  };
+
+  // 🆕 Helper per determinare se è MediaWorld Ricondizionati
+  const isMediaWorldRicondizionati = (item: UsedListing): boolean => {
+    return item.source === 'MediaWorld Ricondizionati';
   };
 
   if (loading) {
@@ -290,7 +306,7 @@ export default function ProductPage() {
         {/* Product Header */}
         <div className="bg-white rounded-xl shadow-lg p-4 md:p-8 mb-6">
           <div className="grid md:grid-cols-2 gap-4 md:gap-8">
-            {/* Image - FIX: SEMPRE GRIGIO CHIARO */}
+            {/* Image */}
             <div 
               className="bg-white rounded-lg flex items-center justify-center relative"
               style={{ minHeight: '300px' }}
@@ -507,7 +523,6 @@ export default function ProductPage() {
                     <div className="flex items-center gap-2 flex-wrap mb-1">
                       <p className="font-semibold text-base md:text-lg">{item.retailer}</p>
                       
-                      {/* 🆕 BADGE RICONDIZIONATO */}
                       {item.condition === 'refurbished' && (
                         <span className="bg-amber-500 text-white text-xs px-2 py-1 rounded-full font-bold">
                           ✨ COME NUOVO
@@ -542,41 +557,97 @@ export default function ProductPage() {
           </div>
         )}
 
-        {/* Prezzi Usato */}
+        {/* Prezzi Usato - 🆕 UPDATED with MediaWorld Ricondizionati styling */}
         {prices && prices.used && prices.used.length > 0 && (
           <div id="usato" className="bg-white rounded-xl shadow-lg p-4 md:p-8">
             <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 flex items-center gap-2">
               <span className="text-green-600">♻️</span>
-              Annunci Usato
+              Annunci Usato e Ricondizionato
             </h2>
             <div className="space-y-3 md:space-y-4">
-              {prices.used.map((item, idx) => (
-                <div key={idx} className="flex flex-col md:flex-row md:justify-between md:items-center p-3 md:p-4 bg-gray-50 rounded-lg hover:bg-green-50 transition border-2 border-transparent hover:border-green-200 gap-3">
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm md:text-base mb-2">{item.title}</p>
-                    <div className="flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm text-gray-600">
-                      {item.location && <span>📍 {item.location}</span>}
-                      {item.condition && <span>🔧 {item.condition}</span>}
-                      {item.published_date && (
-                        <span>📅 {new Date(item.published_date).toLocaleDateString('it-IT')}</span>
+              {prices.used.map((item, idx) => {
+                const isMWRicond = isMediaWorldRicondizionati(item);
+                const grading = extractGrading(item.grading);
+                
+                return (
+                  <div 
+                    key={idx} 
+                    className={`flex flex-col md:flex-row md:justify-between md:items-center p-3 md:p-4 bg-gray-50 rounded-lg transition border-2 gap-3 ${
+                      isMWRicond 
+                        ? 'hover:bg-orange-50 border-orange-200 hover:border-orange-300' 
+                        : 'hover:bg-green-50 border-green-200 hover:border-green-300'
+                    }`}
+                  >
+                    <div className="flex-1">
+                      {/* Retailer badge */}
+                      {isMWRicond ? (
+                        <div className="mb-2">
+                          <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-md font-medium">
+                            🏪 MediaWorld Ricondizionati
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="mb-2">
+                          <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-md font-medium">
+                            🏪 Subito.it
+                          </span>
+                        </div>
                       )}
+                      
+                      <p className="font-semibold text-sm md:text-base mb-2">{item.title}</p>
+                      
+                      <div className="flex flex-wrap gap-2 text-xs md:text-sm">
+                        {/* MediaWorld Ricondizionati: Grading + Discount */}
+                        {isMWRicond ? (
+                          <>
+                            {grading && (
+                              <span className="bg-orange-500 text-white px-2 py-1 rounded-md font-bold">
+                                ✨ {grading}
+                              </span>
+                            )}
+                            {item.discount_percentage && (
+                              <span className="bg-red-500 text-white px-2 py-1 rounded-md font-bold">
+                                🏷️ -{item.discount_percentage}%
+                              </span>
+                            )}
+                          </>
+                        ) : (
+                          /* Subito.it: Location, Condition, Date */
+                          <>
+                            {item.location && <span className="text-gray-600">📍 {item.location}</span>}
+                            {item.condition && <span className="text-gray-600">🔧 {item.condition}</span>}
+                            {item.published_date && (
+                              <span className="text-gray-600">
+                                📅 {new Date(item.published_date).toLocaleDateString('it-IT')}
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between md:justify-end gap-4">
+                      <span className={`text-xl md:text-2xl font-bold ${
+                        isMWRicond ? 'text-orange-600' : 'text-green-600'
+                      }`}>
+                        €{parseFloat(item.price).toFixed(2)}
+                      </span>
+                      <a 
+                        href={item.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className={`px-4 md:px-6 py-2 rounded-lg font-semibold text-xs md:text-sm transition whitespace-nowrap text-white ${
+                          isMWRicond 
+                            ? 'bg-orange-600 hover:bg-orange-700' 
+                            : 'bg-green-600 hover:bg-green-700'
+                        }`}
+                      >
+                        {isMWRicond ? 'Vedi Offerta →' : 'Vedi annuncio →'}
+                      </a>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between md:justify-end gap-4">
-                    <span className="text-xl md:text-2xl font-bold text-green-600">
-                      €{parseFloat(item.price).toFixed(2)}
-                    </span>
-                    <a 
-                      href={item.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 md:px-6 py-2 rounded-lg font-semibold text-xs md:text-sm transition whitespace-nowrap"
-                    >
-                      Vedi annuncio →
-                    </a>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

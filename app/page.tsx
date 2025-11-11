@@ -174,6 +174,13 @@ function SearchContent() {
 
   const handleCategoryClick = (categorySlug: string) => {
     setActiveCategory(categorySlug);
+    
+    // Se categorySlug è vuoto, torna alla home pulita
+    if (!categorySlug) {
+      router.push('/');
+      return;
+    }
+    
     const params = new URLSearchParams();
     if (searchQuery) params.set('search', searchQuery);
     params.set('category', categorySlug);
@@ -541,6 +548,61 @@ function SearchContent() {
               )}
             </div>
           </div>
+
+          {/* 🎯 BADGE FILTRI ATTIVI */}
+          {(searchQuery || activeCategory) && (
+            <div className="mb-6 flex items-center gap-3 flex-wrap">
+              {/* Badge Categoria */}
+              {activeCategory && (
+                <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold shadow-sm">
+                  <span>{categories.find(c => c.slug === activeCategory)?.icon}</span>
+                  <span>{categories.find(c => c.slug === activeCategory)?.name_plural}</span>
+                  <button
+                    onClick={() => {
+                      setActiveCategory('');
+                      router.push(searchQuery ? `/?search=${searchQuery}` : '/');
+                    }}
+                    className="ml-1 hover:text-blue-600 hover:scale-110 transition-transform"
+                    title="Rimuovi filtro categoria"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+              
+              {/* Badge Ricerca */}
+              {searchQuery && (
+                <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-semibold shadow-sm">
+                  <span>🔍</span>
+                  <span>&quot;{searchQuery}&quot;</span>
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      router.push(activeCategory ? `/?category=${activeCategory}` : '/');
+                    }}
+                    className="ml-1 hover:text-purple-600 hover:scale-110 transition-transform"
+                    title="Rimuovi ricerca"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+              
+              {/* Reset Tutto - solo se ci sono entrambi */}
+              {searchQuery && activeCategory && (
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setActiveCategory('');
+                    router.push('/');
+                  }}
+                  className="text-sm text-gray-600 hover:text-gray-900 underline hover:no-underline transition-all"
+                >
+                  🗑️ Cancella tutti i filtri
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Loading state */}
           {loading && (

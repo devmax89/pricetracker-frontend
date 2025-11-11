@@ -9,32 +9,41 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Funzione per resettare filtri quando si clicca sul logo
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+    
+    // Naviga alla home pulita (senza filtri)
+    router.push('/');
+    
+    // Se siamo già in homepage, forza il refresh dello stato
+    if (pathname === '/') {
+      window.location.href = '/';
+    }
+  };
+
   // Funzione per gestire click su Categorie
   const handleCategoriesClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setMobileMenuOpen(false);
     
-    // Se NON siamo in homepage, naviga prima alla home
     if (pathname !== '/') {
       router.push('/');
-      // Aspetta che la pagina carichi, poi scrolla
       setTimeout(() => {
         scrollToCategories();
       }, 300);
     } else {
-      // Siamo già in home, scrolla direttamente
       scrollToCategories();
     }
   };
 
-  // Funzione helper per scroll alle categorie
   const scrollToCategories = () => {
     const categoriesSection = document.getElementById('categorie');
     if (categoriesSection) {
       categoriesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     
-    // Dopo lo scroll, apri il modal categorie
     setTimeout(() => {
       const viewAllButton = document.querySelector('[data-open-categories]') as HTMLButtonElement;
       if (viewAllButton) {
@@ -47,14 +56,19 @@ export default function Header() {
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex justify-between items-center">
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+          {/* Logo - Cliccabile per tornare alla home pulita */}
+          <a 
+            href="/" 
+            onClick={handleLogoClick}
+            className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
+            title="Torna alla homepage"
+          >
             <span className="text-2xl font-bold">
               <span className="text-blue-600">Occhio</span>
               <span className="text-red-600">AlPrezzo</span>
             </span>
             <span className="text-sm text-gray-500">.com</span>
-          </Link>
+          </a>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
@@ -85,12 +99,10 @@ export default function Header() {
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? (
-              // Close Icon
               <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             ) : (
-              // Hamburger Icon
               <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
