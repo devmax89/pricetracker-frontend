@@ -1,3 +1,5 @@
+'use client';  // 🔧 AGGIUNGI QUESTA RIGA
+
 import Link from 'next/link';
 
 export default function Footer() {
@@ -14,9 +16,25 @@ export default function Footer() {
             Privacy
           </Link>
           <span className="text-gray-600">•</span>
+          <Link href="/cookie-policy" className="text-gray-400 hover:text-white transition">
+            Cookie Policy
+          </Link>
+          <span className="text-gray-600">•</span>
           <Link href="/contatti" className="text-gray-400 hover:text-white transition">
             Contatti
           </Link>
+          <span className="text-gray-600">•</span>
+          <button
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('occhioalprezzo_cookie_consent');
+                window.location.reload();
+              }
+            }}
+            className="text-gray-400 hover:text-white transition"
+          >
+            Gestisci Cookie
+          </button>
         </div>
 
         {/* Copyright */}
