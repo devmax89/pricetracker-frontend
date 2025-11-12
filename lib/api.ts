@@ -65,3 +65,26 @@ export async function getCategories() {
   const response = await fetchAPI('/categories');
   return response.data || [];
 }
+
+/**
+ * 🔔 Crea un nuovo price alert
+ * @param productId - ID del prodotto da monitorare
+ * @param targetPrice - Prezzo target (alert si triggera quando il prezzo scende sotto questa soglia)
+ * @param email - Email dove inviare la notifica
+ */
+export async function createPriceAlert(productId: string, targetPrice: number, email: string) {
+  const response = await fetchAPI('/alerts', {
+    method: 'POST',
+    body: JSON.stringify({
+      product_id: parseInt(productId),
+      email: email,
+      target_price: targetPrice
+    })
+  });
+  
+  if (!response.success) {
+    throw new Error(response.error || 'Errore nella creazione dell\'alert');
+  }
+  
+  return response.data;
+}

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getProduct, getProductPrices, getProductHistory } from '@/lib/api';
+import { getProduct, getProductPrices, getProductHistory, createPriceAlert } from '@/lib/api';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -148,10 +148,10 @@ export default function ProductPage() {
     setAlertError(null);
     
     try {
-      // TODO: Implementare chiamata API per creare alert
-      // await createPriceAlert(id, parseFloat(alertPrice), alertEmail);
+      // Importa la funzione in cima al file:
+      // import { getProduct, getProductPrices, getProductHistory, createPriceAlert } from '@/lib/api';
       
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulazione
+      await createPriceAlert(id, parseFloat(alertPrice), alertEmail);
       
       setAlertSuccess(true);
       setAlertPrice('');
