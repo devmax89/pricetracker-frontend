@@ -5,15 +5,15 @@ import { hasConsent } from '@/lib/cookies';
 
 export default function AnalyticsProvider() {
   useEffect(() => {
-    // Init analytics se consenso già dato
+    // Init Umami se consenso già dato
     if (hasConsent('analytics')) {
-      initAnalytics();
+      initUmami();
     }
     
     // Listen per quando l'utente dà il consenso
     const handleConsentGranted = () => {
       if (hasConsent('analytics')) {
-        initAnalytics();
+        initUmami();
       }
     };
     
@@ -21,21 +21,33 @@ export default function AnalyticsProvider() {
     return () => window.removeEventListener('cookieConsentGranted', handleConsentGranted);
   }, []);
 
-  return null; // Questo component non renderizza nulla
+  return null;
 }
 
-function initAnalytics() {
+function initUmami() {
   if (typeof window === 'undefined') return;
+  if (document.querySelector('[data-website-id]')) {
+    console.log('📊 Umami already loaded');
+    return;
+  }
   
-  // Check se script già caricato
-  if (document.querySelector('[data-domain="occhioalprezzo.com"]')) return;
-  
-  // Inizializza Plausible (o il tuo analytics)
   const script = document.createElement('script');
   script.defer = true;
-  script.dataset.domain = 'occhioalprezzo.com';
-  script.src = 'https://plausible.io/js/script.js';
-  document.head.appendChild(script);
+  script.dataset.websiteId = '7734ee79-bb22-4f12-b941-5679923b9780';
+  script.src = 'http://192.168.1.227:3001/script.js';
   
-  console.log('📊 Analytics initialized with consent');
+  script.onload = () => {
+    console.log('✅ Umami Analytics loaded with consent');
+  };
+  
+  document.head.appendChild(script);
+}
+
+// TypeScript declaration per eventi custom (opzionale)
+declare global {
+  interface Window {
+    umami?: {
+      track: (event: string, data?: Record<string, any>) => void;
+    };
+  }
 }
