@@ -35,10 +35,9 @@ export default function NewProductPage() {
     setLoading(true);
 
     try {
-      // TODO: Implementare API backend
-      alert('Feature in arrivo - backend endpoint necessario');
-      // await axios.post(`${API_URL}/admin/products`, formData);
-      // router.push('/admin/products');
+      await axios.post(`${API_URL}/admin/products`, formData);
+      alert('Prodotto creato con successo!');
+      router.push('/admin/products');
     } catch (error) {
       console.error('Error creating product:', error);
       alert('Errore durante la creazione del prodotto');

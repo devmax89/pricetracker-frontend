@@ -29,13 +29,8 @@ export default function AdminAlertsPage() {
 
   const fetchAlerts = async () => {
     try {
-      // TODO: Creare endpoint backend per lista alert admin
-      alert('Feature in arrivo - backend endpoint necessario');
-      // const response = await axios.get(`${API_URL}/admin/alerts`);
-      // setAlerts(response.data.data || []);
-      
-      // Mock data per ora
-      setAlerts([]);
+      const response = await axios.get(`${API_URL}/admin/alerts`);
+      setAlerts(response.data.data || []);
     } catch (error) {
       console.error('Error fetching alerts:', error);
     } finally {
@@ -49,10 +44,9 @@ export default function AdminAlertsPage() {
     }
 
     try {
-      // TODO: Implementare endpoint
-      alert('Feature in arrivo - backend endpoint necessario');
-      // await axios.delete(`${API_URL}/admin/alerts/${id}`);
-      // fetchAlerts();
+      await axios.delete(`${API_URL}/admin/alerts/${id}`);
+      // Refresh lista
+      fetchAlerts();
     } catch (error) {
       console.error('Error deleting alert:', error);
       alert('Errore durante l\'eliminazione');
@@ -137,7 +131,7 @@ export default function AdminAlertsPage() {
                     {alert.product_name || `ID: ${alert.product_id}`}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    €{alert.target_price.toFixed(2)}
+                    {alert.target_price ? `€${Number(alert.target_price).toFixed(2)}` : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {format(new Date(alert.created_at), 'dd MMM yyyy', { locale: it })}

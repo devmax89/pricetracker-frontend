@@ -29,7 +29,7 @@ export default function AdminProductsPage() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${API_URL}/products?limit=1000`);
+      const response = await axios.get(`${API_URL}/admin/products`);
       setProducts(response.data.data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -44,10 +44,9 @@ export default function AdminProductsPage() {
     }
 
     try {
-      // TODO: Implementare API backend per toggle
-      alert('Feature in arrivo - backend endpoint necessario');
-      // await axios.patch(`${API_URL}/admin/products/${id}`, { is_active: !currentStatus });
-      // fetchProducts();
+      await axios.patch(`${API_URL}/admin/products/${id}/toggle`);
+      // Refresh lista
+      fetchProducts();
     } catch (error) {
       console.error('Error toggling product:', error);
       alert('Errore durante l\'aggiornamento');
@@ -55,15 +54,14 @@ export default function AdminProductsPage() {
   };
 
   const deleteProduct = async (id: number) => {
-    if (!confirm('Sei sicuro di voler eliminare questo prodotto? Questa azione è irreversibile.')) {
+    if (!confirm('Sei sicuro di voler eliminare questo prodotto? Verrà disattivato.')) {
       return;
     }
 
     try {
-      // TODO: Implementare API backend per delete
-      alert('Feature in arrivo - backend endpoint necessario');
-      // await axios.delete(`${API_URL}/admin/products/${id}`);
-      // fetchProducts();
+      await axios.delete(`${API_URL}/admin/products/${id}`);
+      // Refresh lista
+      fetchProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
       alert('Errore durante l\'eliminazione');

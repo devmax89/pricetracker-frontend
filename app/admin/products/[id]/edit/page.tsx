@@ -68,10 +68,9 @@ export default function EditProductPage() {
     setSaving(true);
 
     try {
-      // TODO: Implementare API backend
-      alert('Feature in arrivo - backend endpoint necessario');
-      // await axios.put(`${API_URL}/admin/products/${productId}`, formData);
-      // router.push('/admin/products');
+      await axios.put(`${API_URL}/admin/products/${productId}`, formData);
+      alert('Prodotto aggiornato con successo!');
+      router.push('/admin/products');
     } catch (error) {
       console.error('Error updating product:', error);
       alert('Errore durante l\'aggiornamento del prodotto');
