@@ -256,20 +256,22 @@ export default function EditProductPage() {
                 />
               </div>
 
+              {/* MediaWorld URL - può essere query testuale */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   MediaWorld URL
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   name="mediaworld_url"
                   value={formData.mediaworld_url}
                   onChange={handleChange}
-                  placeholder="https://www.mediaworld.it/..."
+                  placeholder="URL o query: galaxy s25 edge"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
+              {/* MediaWorld Ricondizionati - query testuale */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   MediaWorld Ricondizionati
@@ -279,49 +281,52 @@ export default function EditProductPage() {
                   name="mediaworld_ricondizionati_url"
                   value={formData.mediaworld_ricondizionati_url}
                   onChange={handleChange}
-                  placeholder="Query per ricondizionati"
+                  placeholder="Query: Samsung Galaxy S25 Edge"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
+              {/* LDLC URL - può essere query testuale */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   LDLC URL
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   name="ldlc_url"
                   value={formData.ldlc_url}
                   onChange={handleChange}
-                  placeholder="https://www.ldlc.com/..."
+                  placeholder="URL o query: galaxy s25 edge"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
+              {/* AK Informatica URL - può essere query testuale */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   AK Informatica URL
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   name="akinformatica_url"
                   value={formData.akinformatica_url}
                   onChange={handleChange}
-                  placeholder="https://www.akinformatica.it/..."
+                  placeholder="URL o query: samsung galaxy s25 fe"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
+              {/* NextHS URL - può essere query testuale */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   NextHS URL
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   name="nexths_url"
                   value={formData.nexths_url}
                   onChange={handleChange}
-                  placeholder="https://www.nexths.it/..."
+                  placeholder="URL o query: Galaxy S25 Edge"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>

@@ -38,6 +38,25 @@ export default function PriceTable({ newPrices, usedPrices, onRefresh }: PriceTa
   const [editFormNew, setEditFormNew] = useState({ price: '', retailer: '', url: '' });
   const [editFormUsed, setEditFormUsed] = useState({ price: '', title: '', external_url: '' });
 
+  // 🆕 Pagination states
+  const [currentPageNew, setCurrentPageNew] = useState(1);
+  const [currentPageUsed, setCurrentPageUsed] = useState(1);
+  const itemsPerPage = 20;
+
+  // Calculate pagination
+  const totalPagesNew = Math.ceil(newPrices.length / itemsPerPage);
+  const totalPagesUsed = Math.ceil(usedPrices.length / itemsPerPage);
+
+  const paginatedNewPrices = newPrices.slice(
+    (currentPageNew - 1) * itemsPerPage,
+    currentPageNew * itemsPerPage
+  );
+
+  const paginatedUsedPrices = usedPrices.slice(
+    (currentPageUsed - 1) * itemsPerPage,
+    currentPageUsed * itemsPerPage
+  );
+
   // NEW PRICES
   const handleEditNew = (price: NewPrice) => {
     setEditingNew(price.id);
@@ -112,6 +131,88 @@ export default function PriceTable({ newPrices, usedPrices, onRefresh }: PriceTa
     }
   };
 
+  // 🆕 Pagination Component
+  const Pagination = ({ currentPage, totalPages, onPageChange }: any) => {
+    const pages = [];
+    const maxVisible = 5;
+    
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+    
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return (
+      <div className="flex items-center justify-between px-6 py-3 bg-gray-50">
+        <div className="text-sm text-gray-700">
+          Pagina <span className="font-medium">{currentPage}</span> di{' '}
+          <span className="font-medium">{totalPages}</span>
+        </div>
+        
+        <div className="flex gap-2">
+          <button
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="px-3 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            ← Precedente
+          </button>
+          
+          {startPage > 1 && (
+            <>
+              <button
+                onClick={() => onPageChange(1)}
+                className="px-3 py-1 text-sm border rounded hover:bg-gray-100"
+              >
+                1
+              </button>
+              {startPage > 2 && <span className="px-2 py-1">...</span>}
+            </>
+          )}
+          
+          {pages.map(page => (
+            <button
+              key={page}
+              onClick={() => onPageChange(page)}
+              className={`px-3 py-1 text-sm border rounded ${
+                page === currentPage
+                  ? 'bg-blue-600 text-white'
+                  : 'hover:bg-gray-100'
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+          
+          {endPage < totalPages && (
+            <>
+              {endPage < totalPages - 1 && <span className="px-2 py-1">...</span>}
+              <button
+                onClick={() => onPageChange(totalPages)}
+                className="px-3 py-1 text-sm border rounded hover:bg-gray-100"
+              >
+                {totalPages}
+              </button>
+            </>
+          )}
+          
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 text-sm border rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Successiva →
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-8">
       {/* NEW PRICES TABLE */}
@@ -141,14 +242,14 @@ export default function PriceTable({ newPrices, usedPrices, onRefresh }: PriceTa
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {newPrices.length === 0 ? (
+              {paginatedNewPrices.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                     Nessun prezzo trovato
                   </td>
                 </tr>
               ) : (
-                newPrices.map((price) => (
+                paginatedNewPrices.map((price) => (
                   <tr key={price.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingNew === price.id ? (
@@ -230,6 +331,15 @@ export default function PriceTable({ newPrices, usedPrices, onRefresh }: PriceTa
               )}
             </tbody>
           </table>
+          
+          {/* 🆕 Pagination NEW */}
+          {totalPagesNew > 1 && (
+            <Pagination
+              currentPage={currentPageNew}
+              totalPages={totalPagesNew}
+              onPageChange={setCurrentPageNew}
+            />
+          )}
         </div>
       </div>
 
@@ -263,14 +373,14 @@ export default function PriceTable({ newPrices, usedPrices, onRefresh }: PriceTa
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {usedPrices.length === 0 ? (
+              {paginatedUsedPrices.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                     Nessun annuncio usato trovato
                   </td>
                 </tr>
               ) : (
-                usedPrices.map((price) => (
+                paginatedUsedPrices.map((price) => (
                   <tr key={price.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       {editingUsed === price.id ? (
@@ -291,10 +401,11 @@ export default function PriceTable({ newPrices, usedPrices, onRefresh }: PriceTa
                     <td className="px-6 py-4 whitespace-nowrap">
                       {editingUsed === price.id ? (
                         <input
-                          type="url"
-                          value={editFormUsed.external_url}
-                          onChange={(e) => setEditFormUsed({ ...editFormUsed, external_url: e.target.value })}
-                          className="px-2 py-1 border rounded text-sm w-full"
+                          type="number"
+                          step="0.01"
+                          value={editFormUsed.price}
+                          onChange={(e) => setEditFormUsed({ ...editFormUsed, price: e.target.value })}
+                          className="px-2 py-1 border rounded text-sm w-24"
                         />
                       ) : (
                         <span className="text-gray-900">€{Number(price.price).toFixed(2)}</span>
@@ -353,6 +464,15 @@ export default function PriceTable({ newPrices, usedPrices, onRefresh }: PriceTa
               )}
             </tbody>
           </table>
+          
+          {/* 🆕 Pagination USED */}
+          {totalPagesUsed > 1 && (
+            <Pagination
+              currentPage={currentPageUsed}
+              totalPages={totalPagesUsed}
+              onPageChange={setCurrentPageUsed}
+            />
+          )}
         </div>
       </div>
     </div>
