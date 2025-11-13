@@ -1,0 +1,47 @@
+{
+  "name": "OcchioAlPrezzo - Confronta Prezzi Tech",
+  "short_name": "OcchioAlPrezzo",
+  "description": "Trova il miglior prezzo per prodotti tech in Italia. Confronta nuovo e usato, storico prezzi e alert automatici.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["shopping", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Categorie",
+      "short_name": "Categorie",
+      "description": "Esplora prodotti per categoria",
+      "url": "/#categorie",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Offerte Top",
+      "short_name": "Offerte",
+      "description": "Vedi le migliori offerte del momento",
+      "url": "/#offerte",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "96x96" }]
+    }
+  ]
+}
