@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CookieBanner from '@/components/CookieBanner';
 import AnalyticsProvider from '@/components/AnalyticsProvider';
+import Providers from './providers'; // 🆕 AGGIUNGI
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,7 +21,6 @@ export const metadata: Metadata = {
   title: "OcchioAlPrezzo.com - Il tuo radar sulle offerte tech",
   description: "Trova il miglior prezzo tech in Italia. Confronta prezzi nuovo e usato, storico prezzi e alert automatici.",
   manifest: "/manifest.json",
-  themeColor: "#2563eb",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -38,6 +38,10 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport = {
+  themeColor: "#2563eb",
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -46,11 +50,13 @@ export default function RootLayout({
   return (
     <html lang="it">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AnalyticsProvider />
-        <Header />
-        {children}
-        <Footer />
-        <CookieBanner />
+        <Providers> {/* 🆕 WRAP TUTTO */}
+          <AnalyticsProvider />
+          <Header />
+          {children}
+          <Footer />
+          <CookieBanner />
+        </Providers>
       </body>
     </html>
   );
