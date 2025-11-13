@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import axios from 'axios';
+import PriceTable from '@/components/admin/PriceTable';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -19,11 +20,24 @@ export default function EditProductPage() {
     model: '',
     category: '',
     description: '',
-    amazon_url: '',
-    subito_url: '',
     image_url: '',
     is_active: true,
+    // 🆕 Tutti i retailer URLs
+    amazon_url: '',
+    mediaworld_url: '',
+    mediaworld_ricondizionati_url: '',
+    ldlc_url: '',
+    akinformatica_url: '',
+    nexths_url: '',
+    subito_url: '',
   });
+
+  // Prices state
+  const [prices, setPrices] = useState({
+    new_prices: [],
+    used_prices: [],
+  });
+  const [loadingPrices, setLoadingPrices] = useState(false);
 
   const categories = [
     { value: 'gpu', label: 'Schede Video (GPU)' },
@@ -33,10 +47,12 @@ export default function EditProductPage() {
     { value: 'motherboard', label: 'Schede Madri' },
     { value: 'ram', label: 'Memorie RAM' },
     { value: 'ssd', label: 'SSD' },
+    { value: 'smartphone', label: 'Smartphone' },
   ];
 
   useEffect(() => {
     fetchProduct();
+    fetchPrices();
   }, [productId]);
 
   const fetchProduct = async () => {
@@ -50,16 +66,33 @@ export default function EditProductPage() {
         model: product.model || '',
         category: product.category || 'gpu',
         description: product.description || '',
-        amazon_url: product.amazon_url || '',
-        subito_url: product.subito_url || '',
         image_url: product.image_url || '',
         is_active: product.is_active ?? true,
+        amazon_url: product.amazon_url || '',
+        mediaworld_url: product.mediaworld_url || '',
+        mediaworld_ricondizionati_url: product.mediaworld_ricondizionati_url || '',
+        ldlc_url: product.ldlc_url || '',
+        akinformatica_url: product.akinformatica_url || '',
+        nexths_url: product.nexths_url || '',
+        subito_url: product.subito_url || '',
       });
     } catch (error) {
       console.error('Error fetching product:', error);
       alert('Errore nel caricamento del prodotto');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPrices = async () => {
+    setLoadingPrices(true);
+    try {
+      const response = await axios.get(`${API_URL}/admin/products/${productId}/prices`);
+      setPrices(response.data.data);
+    } catch (error) {
+      console.error('Error fetching prices:', error);
+    } finally {
+      setLoadingPrices(false);
     }
   };
 
@@ -108,7 +141,8 @@ export default function EditProductPage() {
         <h1 className="text-3xl font-bold text-gray-900">Modifica Prodotto #{productId}</h1>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6">
+      {/* Product Form */}
+      <div className="bg-white rounded-lg shadow p-6 mb-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Nome */}
           <div>
@@ -189,35 +223,6 @@ export default function EditProductPage() {
             />
           </div>
 
-          {/* URLs */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Amazon URL
-              </label>
-              <input
-                type="url"
-                name="amazon_url"
-                value={formData.amazon_url}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Subito URL
-              </label>
-              <input
-                type="url"
-                name="subito_url"
-                value={formData.subito_url}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
           {/* Image URL */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -230,6 +235,111 @@ export default function EditProductPage() {
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+
+          {/* 🆕 URLs Retailer */}
+          <div className="border-t pt-6 mt-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">URL Retailer</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Amazon URL
+                </label>
+                <input
+                  type="url"
+                  name="amazon_url"
+                  value={formData.amazon_url}
+                  onChange={handleChange}
+                  placeholder="https://www.amazon.it/s?k=..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  MediaWorld URL
+                </label>
+                <input
+                  type="url"
+                  name="mediaworld_url"
+                  value={formData.mediaworld_url}
+                  onChange={handleChange}
+                  placeholder="https://www.mediaworld.it/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  MediaWorld Ricondizionati
+                </label>
+                <input
+                  type="text"
+                  name="mediaworld_ricondizionati_url"
+                  value={formData.mediaworld_ricondizionati_url}
+                  onChange={handleChange}
+                  placeholder="Query per ricondizionati"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  LDLC URL
+                </label>
+                <input
+                  type="url"
+                  name="ldlc_url"
+                  value={formData.ldlc_url}
+                  onChange={handleChange}
+                  placeholder="https://www.ldlc.com/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  AK Informatica URL
+                </label>
+                <input
+                  type="url"
+                  name="akinformatica_url"
+                  value={formData.akinformatica_url}
+                  onChange={handleChange}
+                  placeholder="https://www.akinformatica.it/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  NextHS URL
+                </label>
+                <input
+                  type="url"
+                  name="nexths_url"
+                  value={formData.nexths_url}
+                  onChange={handleChange}
+                  placeholder="https://www.nexths.it/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Subito URL
+                </label>
+                <input
+                  type="url"
+                  name="subito_url"
+                  value={formData.subito_url}
+                  onChange={handleChange}
+                  placeholder="https://www.subito.it/annunci-italia/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Active Toggle */}
@@ -264,6 +374,32 @@ export default function EditProductPage() {
             </button>
           </div>
         </form>
+      </div>
+
+      {/* PRICE MANAGEMENT SECTION */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-gray-900">Gestione Prezzi</h2>
+          <button
+            onClick={fetchPrices}
+            disabled={loadingPrices}
+            className="text-blue-600 hover:text-blue-800 font-medium"
+          >
+            {loadingPrices ? 'Caricamento...' : '🔄 Ricarica'}
+          </button>
+        </div>
+
+        {loadingPrices ? (
+          <div className="flex items-center justify-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        ) : (
+          <PriceTable
+            newPrices={prices.new_prices}
+            usedPrices={prices.used_prices}
+            onRefresh={fetchPrices}
+          />
+        )}
       </div>
     </div>
   );

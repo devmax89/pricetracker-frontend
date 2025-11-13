@@ -15,9 +15,16 @@ export default function NewProductPage() {
     model: '',
     category: 'gpu',
     description: '',
-    amazon_url: '',
-    subito_url: '',
     image_url: '',
+    
+    //RETAILER URLs
+    amazon_url: '',
+    mediaworld_url: '',
+    mediaworld_ricondizionati_url: '',
+    ldlc_url: '',
+    akinformatica_url: '',
+    nexths_url: '',
+    subito_url: '',
   });
 
   const categories = [
@@ -150,34 +157,108 @@ export default function NewProductPage() {
             />
           </div>
 
-          {/* URLs */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Amazon URL
-              </label>
-              <input
-                type="url"
-                name="amazon_url"
-                value={formData.amazon_url}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="https://amazon.it/..."
-              />
-            </div>
+          {/* URLs Retailer */}
+          <div className="border-t pt-6 mt-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">URL Retailer</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Amazon URL
+                </label>
+                <input
+                  type="url"
+                  name="amazon_url"
+                  value={formData.amazon_url}
+                  onChange={handleChange}
+                  placeholder="https://www.amazon.it/s?k=..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Subito URL
-              </label>
-              <input
-                type="url"
-                name="subito_url"
-                value={formData.subito_url}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="https://subito.it/..."
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  MediaWorld URL
+                </label>
+                <input
+                  type="url"
+                  name="mediaworld_url"
+                  value={formData.mediaworld_url}
+                  onChange={handleChange}
+                  placeholder="https://www.mediaworld.it/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  MediaWorld Ricondizionati URL
+                </label>
+                <input
+                  type="url"
+                  name="mediaworld_ricondizionati_url"
+                  value={formData.mediaworld_ricondizionati_url}
+                  onChange={handleChange}
+                  placeholder="Query o URL per ricondizionati"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  LDLC URL
+                </label>
+                <input
+                  type="url"
+                  name="ldlc_url"
+                  value={formData.ldlc_url}
+                  onChange={handleChange}
+                  placeholder="https://www.ldlc.com/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  AK Informatica URL
+                </label>
+                <input
+                  type="url"
+                  name="akinformatica_url"
+                  value={formData.akinformatica_url}
+                  onChange={handleChange}
+                  placeholder="https://www.akinformatica.it/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  NextHS URL
+                </label>
+                <input
+                  type="url"
+                  name="nexths_url"
+                  value={formData.nexths_url}
+                  onChange={handleChange}
+                  placeholder="https://www.nexths.it/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Subito URL
+                </label>
+                <input
+                  type="url"
+                  name="subito_url"
+                  value={formData.subito_url}
+                  onChange={handleChange}
+                  placeholder="https://www.subito.it/annunci-italia/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
           </div>
 
