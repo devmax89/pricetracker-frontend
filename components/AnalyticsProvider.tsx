@@ -34,7 +34,8 @@ function initUmami() {
   const script = document.createElement('script');
   script.defer = true;
   script.dataset.websiteId = '7734ee79-bb22-4f12-b941-5679923b9780';
-  script.src = 'http://192.168.1.227:3001/script.js';
+  //script.src = 'http://192.168.1.227:3001/script.js';
+  script.src = 'https://analytics.occhioalprezzo.com:30022/script.js';
   
   script.onload = () => {
     console.log('✅ Umami Analytics loaded with consent');
