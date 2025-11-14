@@ -25,30 +25,26 @@ export default function CategorySection({
 }: CategorySectionProps) {
   const [showAllCategories, setShowAllCategories] = useState(false);
 
-  // Debug: mostra quante categorie ci sono
-  console.log('📊 Total categories:', categories.length);
-  console.log('📊 Categories data:', categories);
-
   // Separa categorie featured e non-featured
   const heroCategories = categories
     .filter(cat => cat.is_featured)
-    .slice(0, 6);
+    .slice(0, 7); // 🆕 Aumentato a 7 per includere notebook
   
   const secondaryCategories = categories.filter(cat => !cat.is_featured);
 
-  console.log('⭐ Hero categories:', heroCategories.length);
-  console.log('📦 Secondary categories:', secondaryCategories.length);
-
-  // Organizza categorie secondarie per gruppo
+  // Organizza categorie secondarie per gruppo (aggiornato)
   const groupedCategories = {
     'Componenti PC': secondaryCategories.filter(cat => 
-      ['schede-madri', 'ssd', 'ram', 'alimentatori', 'dissipatori', 'case-pc'].includes(cat.slug)
+      ['schede-madri', 'ssd', 'ram', 'alimentatori', 'dissipatori', 'case-pc', 'pc-desktop'].includes(cat.slug) // 🆕 pc-desktop
     ),
     'Periferiche & Gaming': secondaryCategories.filter(cat =>
       ['cuffie-audio', 'controller-gaming', 'webcam-streaming'].includes(cat.slug)
     ),
     'Mobile & Wearables': secondaryCategories.filter(cat =>
-      ['smartwatch', 'tablet'].includes(cat.slug)
+      ['smartwatch'].includes(cat.slug)
+    ),
+    'Casa & Intrattenimento': secondaryCategories.filter(cat =>
+      ['tv-video', 'hifi-audio', 'elettrodomestici'].includes(cat.slug)
     )
   };
 
@@ -57,7 +53,6 @@ export default function CategorySection({
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Esplora per Categoria</h2>
         
-        {/* Bottone "Vedi tutte" - PIÙ VISIBILE con data-attribute */}
         {secondaryCategories.length > 0 && (
           <button
             onClick={() => setShowAllCategories(true)}
@@ -72,16 +67,15 @@ export default function CategorySection({
         )}
       </div>
       
-      {/* Loading state */}
       {loading && categories.length === 0 && (
         <div className="text-center py-8">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
         </div>
       )}
       
-      {/* Hero Categories Grid - 6 visibili sempre */}
+      {/* 🆕 Hero Categories Grid - 7 visibili (era 6) */}
       {heroCategories.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
           {heroCategories.map((cat) => (
             <button
               key={cat.slug}
@@ -100,18 +94,16 @@ export default function CategorySection({
         </div>
       )}
 
-      {/* Modal/Drawer per tutte le categorie */}
+      {/* Modal/Drawer - resto invariato */}
       {showAllCategories && (
         <div 
           className="fixed inset-0 bg-black/50 z-50 flex items-end md:items-center md:justify-center"
           onClick={() => setShowAllCategories(false)}
         >
-          {/* Mobile: Drawer dal basso | Desktop: Modal centrato */}
           <div 
             className="bg-white w-full md:max-w-4xl md:rounded-2xl md:rounded-b-none rounded-t-3xl max-h-[85vh] md:max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between rounded-t-3xl md:rounded-t-2xl">
               <h3 className="text-xl font-bold text-gray-800">Tutte le Categorie</h3>
               <button
@@ -125,9 +117,7 @@ export default function CategorySection({
               </button>
             </div>
 
-            {/* Content */}
             <div className="p-6 space-y-8">
-              {/* Hero Categories (ripetute per comodità) */}
               <div>
                 <h4 className="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
                   <span>⭐</span>
@@ -155,7 +145,6 @@ export default function CategorySection({
                 </div>
               </div>
 
-              {/* Grouped Secondary Categories */}
               {Object.entries(groupedCategories).map(([groupName, groupCats]) => (
                 groupCats.length > 0 && (
                   <div key={groupName}>

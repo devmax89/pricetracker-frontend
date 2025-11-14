@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import { generateRetailerUrls, generateSlug } from '@/lib/utils';
+import { CATEGORIES } from '@/lib/categories';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -27,15 +29,27 @@ export default function NewProductPage() {
     subito_url: '',
   });
 
-  const categories = [
-    { value: 'gpu', label: 'Schede Video (GPU)' },
-    { value: 'cpu', label: 'Processori (CPU)' },
-    { value: 'console', label: 'Console Gaming' },
-    { value: 'monitor', label: 'Monitor' },
-    { value: 'motherboard', label: 'Schede Madri' },
-    { value: 'ram', label: 'Memorie RAM' },
-    { value: 'ssd', label: 'SSD' },
-  ];
+  // Auto-fill function
+  const handleAutoFill = () => {
+  if (!formData.name || !formData.brand) {
+    alert('Inserisci almeno Nome Prodotto e Brand prima di auto-compilare!');
+    return;
+  }
+
+  const urls = generateRetailerUrls(formData.name, formData.brand, formData.category);
+  
+  setFormData({
+    ...formData,
+    ...urls,
+  });
+  
+  console.log('✅ URL auto-generati:', urls);
+};
+
+  const categories = CATEGORIES.map(cat => ({
+    value: cat.value,
+    label: cat.label
+  }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +66,8 @@ export default function NewProductPage() {
       setLoading(false);
     }
   };
+
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -105,6 +121,23 @@ export default function NewProductPage() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 placeholder="es. NVIDIA"
               />
+            </div>
+
+            {/* Auto-fill Button */}
+            <div className="col-span-2">
+              <button
+                type="button"
+                onClick={handleAutoFill}
+                className="w-full bg-green-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Auto-Compila URL Retailer
+              </button>
+              <p className="text-sm text-gray-500 mt-2 text-center">
+                Genera automaticamente gli URL per tutti i retailer
+              </p>
             </div>
 
             <div>
@@ -176,72 +209,77 @@ export default function NewProductPage() {
                 />
               </div>
 
+              {/* MediaWorld URL */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   MediaWorld URL
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   name="mediaworld_url"
                   value={formData.mediaworld_url}
                   onChange={handleChange}
-                  placeholder="https://www.mediaworld.it/..."
+                  placeholder="URL o query: galaxy s25 edge"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
+              {/* MediaWorld Ricondizionati */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   MediaWorld Ricondizionati URL
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   name="mediaworld_ricondizionati_url"
                   value={formData.mediaworld_ricondizionati_url}
                   onChange={handleChange}
-                  placeholder="Query o URL per ricondizionati"
+                  placeholder="Query: Samsung Galaxy S25 Edge"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
+              {/* LDLC URL */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   LDLC URL
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   name="ldlc_url"
                   value={formData.ldlc_url}
                   onChange={handleChange}
-                  placeholder="https://www.ldlc.com/..."
+                  placeholder="URL o query: galaxy s25 edge"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
+              {/* AK Informatica URL */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   AK Informatica URL
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   name="akinformatica_url"
                   value={formData.akinformatica_url}
                   onChange={handleChange}
-                  placeholder="https://www.akinformatica.it/..."
+                  placeholder="URL o query: samsung galaxy s25 fe"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
+              {/* NextHS URL */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   NextHS URL
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   name="nexths_url"
                   value={formData.nexths_url}
                   onChange={handleChange}
-                  placeholder="https://www.nexths.it/..."
+                  placeholder="URL o query: Galaxy S25 Edge"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 />
               </div>

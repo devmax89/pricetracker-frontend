@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import axios from 'axios';
 import PriceTable from '@/components/admin/PriceTable';
+import { generateRetailerUrls } from '@/lib/utils';
+import { CATEGORIES } from '@/lib/categories';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -22,7 +24,6 @@ export default function EditProductPage() {
     description: '',
     image_url: '',
     is_active: true,
-    // 🆕 Tutti i retailer URLs
     amazon_url: '',
     mediaworld_url: '',
     mediaworld_ricondizionati_url: '',
@@ -39,16 +40,11 @@ export default function EditProductPage() {
   });
   const [loadingPrices, setLoadingPrices] = useState(false);
 
-  const categories = [
-    { value: 'gpu', label: 'Schede Video (GPU)' },
-    { value: 'cpu', label: 'Processori (CPU)' },
-    { value: 'console', label: 'Console Gaming' },
-    { value: 'monitor', label: 'Monitor' },
-    { value: 'motherboard', label: 'Schede Madri' },
-    { value: 'ram', label: 'Memorie RAM' },
-    { value: 'ssd', label: 'SSD' },
-    { value: 'smartphone', label: 'Smartphone' },
-  ];
+  // Categorie dal file centrale
+  const categories = CATEGORIES.map(cat => ({
+    value: cat.value,
+    label: cat.label
+  }));
 
   useEffect(() => {
     fetchProduct();
@@ -94,6 +90,23 @@ export default function EditProductPage() {
     } finally {
       setLoadingPrices(false);
     }
+  };
+
+  // 🆕 Auto-fill function
+  const handleAutoFill = () => {
+    if (!formData.name || !formData.brand) {
+      alert('Inserisci almeno Nome Prodotto e Brand prima di auto-compilare!');
+      return;
+    }
+
+    const urls = generateRetailerUrls(formData.name, formData.brand, formData.category);
+    
+    setFormData({
+      ...formData,
+      ...urls,
+    });
+    
+    console.log('✅ URL auto-generati:', urls);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -189,6 +202,23 @@ export default function EditProductPage() {
             </div>
           </div>
 
+          {/* 🆕 Auto-fill Button */}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <button
+              type="button"
+              onClick={handleAutoFill}
+              className="w-full bg-green-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 flex items-center justify-center gap-2 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Auto-Compila URL Retailer
+            </button>
+            <p className="text-sm text-green-700 mt-2 text-center">
+              Genera automaticamente gli URL per tutti i retailer basandosi su Nome e Brand
+            </p>
+          </div>
+
           {/* Categoria */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -237,7 +267,7 @@ export default function EditProductPage() {
             />
           </div>
 
-          {/* 🆕 URLs Retailer */}
+          {/* URLs Retailer */}
           <div className="border-t pt-6 mt-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">URL Retailer</h3>
             
@@ -256,7 +286,6 @@ export default function EditProductPage() {
                 />
               </div>
 
-              {/* MediaWorld URL - può essere query testuale */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   MediaWorld URL
@@ -271,7 +300,6 @@ export default function EditProductPage() {
                 />
               </div>
 
-              {/* MediaWorld Ricondizionati - query testuale */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   MediaWorld Ricondizionati
@@ -286,7 +314,6 @@ export default function EditProductPage() {
                 />
               </div>
 
-              {/* LDLC URL - può essere query testuale */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   LDLC URL
@@ -301,7 +328,6 @@ export default function EditProductPage() {
                 />
               </div>
 
-              {/* AK Informatica URL - può essere query testuale */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   AK Informatica URL
@@ -316,7 +342,6 @@ export default function EditProductPage() {
                 />
               </div>
 
-              {/* NextHS URL - può essere query testuale */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   NextHS URL

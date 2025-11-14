@@ -7,6 +7,7 @@ import Image from 'next/image';
 import ProductCard from '@/components/ProductCard';
 import CategorySection from '@/components/CategorySection';
 import { getProducts, getCategories } from '@/lib/api';
+import { getCategoryIcon, getCategoryLabel } from '@/lib/categories';
 
 // Componente separato per gestire searchParams
 function SearchContent() {
@@ -108,7 +109,7 @@ function SearchContent() {
 
   // 🎮 PER CATEGORIA - Top 4 per ogni categoria principale
   const categoryGroups: { [key: string]: any[] } = {};
-  const mainCategories = ['gpu', 'cpu', 'console', 'monitor'];
+  const mainCategories = ['gpu', 'cpu', 'console', 'monitor', 'smartphone', 'notebook'];
   
   mainCategories.forEach(catSlug => {
     categoryGroups[catSlug] = products
@@ -126,27 +127,6 @@ function SearchContent() {
   const trending = [...products]
     .sort(() => Math.random() - 0.5)
     .slice(0, 8);
-
-  // Icone categoria
-  const categoryIcons: { [key: string]: string } = {
-    'gpu': '🎮',
-    'cpu': '🖥️',
-    'console': '🎮',
-    'monitor': '📺',
-    'ssd': '💾',
-    'motherboard': '🔌',
-    'ram': '💿',
-    'psu': '⚡',
-    'cooling': '❄️',
-    'case': '📦'
-  };
-
-  const categoryNames: { [key: string]: string } = {
-    'gpu': 'Schede Video',
-    'cpu': 'Processori',
-    'console': 'Console Gaming',
-    'monitor': 'Monitor'
-  };
 
   // Gestisce il submit della ricerca
   const handleSearch = (e: React.FormEvent) => {
@@ -209,7 +189,7 @@ function SearchContent() {
             </p>
           </div>
 
-          {/* Search Bar - FIX ALLINEAMENTO */}
+          {/* Search Bar */}
           <form onSubmit={handleSearch} className="max-w-3xl mx-auto">
             <div className="relative flex items-center">
               <input
@@ -224,7 +204,6 @@ function SearchContent() {
                 }}
               />
               
-              {/* Clear button */}
               {searchQuery && (
                 <button
                   type="button"
@@ -238,7 +217,6 @@ function SearchContent() {
                 </button>
               )}
               
-              {/* Search button - SEMPRE ALLINEATO */}
               <button
                 type="submit"
                 className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full font-semibold transition-colors shadow-lg"
@@ -258,10 +236,10 @@ function SearchContent() {
         loading={loading}
       />
 
-      {/* SEZIONI DINAMICHE - Solo se NON c'è ricerca/filtro attivo */}
+      {/* SEZIONI DINAMICHE */}
       {!showFilteredView && !loading && (
         <>
-          {/* 🔥 TOP 3 OFFERTE DEL GIORNO - PIÙ COMPATTO MOBILE */}
+          {/* TOP 3 OFFERTE */}
           {topDeals.length > 0 && (
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
               <div className="flex items-center justify-between mb-4 md:mb-6">
@@ -285,7 +263,7 @@ function SearchContent() {
               <div className="grid md:grid-cols-3 gap-3 md:gap-6">
                 {topDeals.map((product, idx) => {
                   const hasImage = product.image_url && product.image_url.trim() !== '';
-                  const fallbackIcon = categoryIcons[product.category.toLowerCase()] || '🔧';
+                  const fallbackIcon = getCategoryIcon(product.category);
                   const discount = Math.round(product.discountValue);
                   const newPrice = product.new_min_price ? parseFloat(product.new_min_price) : null;
 
@@ -295,7 +273,6 @@ function SearchContent() {
                       href={`/products/${product.id}`}
                       className="bg-white rounded-xl md:rounded-2xl shadow-md md:shadow-lg hover:shadow-xl md:hover:shadow-2xl transition-all duration-300 overflow-hidden group relative"
                     >
-                      {/* Badge Posizione - PIÙ PICCOLO MOBILE */}
                       <div className={`absolute top-2 left-2 md:top-4 md:left-4 z-10 w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center text-base md:text-xl font-bold shadow-lg ${
                         idx === 0 ? 'bg-yellow-400 text-yellow-900' :
                         idx === 1 ? 'bg-gray-300 text-gray-700' :
@@ -304,12 +281,10 @@ function SearchContent() {
                         {idx + 1}
                       </div>
 
-                      {/* Badge Sconto - PIÙ PICCOLO MOBILE */}
                       <div className="absolute top-2 right-2 md:top-4 md:right-4 z-10 bg-red-600 text-white px-2 py-1 md:px-4 md:py-2 rounded-lg md:rounded-xl font-bold shadow-lg text-sm md:text-base">
                         -{discount}%
                       </div>
 
-                      {/* Immagine - PIÙ PICCOLA MOBILE */}
                       <div
                         style={{
                           background: hasImage ? '#ffffff' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
@@ -331,7 +306,6 @@ function SearchContent() {
                         )}
                       </div>
 
-                      {/* Info - PIÙ COMPATTA MOBILE */}
                       <div className="p-3 md:p-6">
                         <h3 className="font-bold text-sm md:text-lg mb-1 md:mb-2 text-gray-900 line-clamp-2 min-h-[2.5rem] md:min-h-[3.5rem] group-hover:text-blue-600 transition-colors">
                           {product.name}
@@ -357,7 +331,7 @@ function SearchContent() {
             </section>
           )}
 
-          {/* ⚡ NUOVI ARRIVI - PIÙ COMPATTO MOBILE */}
+          {/* NUOVI ARRIVI */}
           {newArrivals.length > 0 && (
             <section className="bg-gradient-to-r from-blue-50 to-purple-50 py-8 md:py-12">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -368,7 +342,6 @@ function SearchContent() {
                   </h2>
                 </div>
 
-                {/* Scroll orizzontale - CARD PIÙ PICCOLE MOBILE */}
                 <div className="overflow-x-auto pb-4 -mx-4 px-4">
                   <div className="flex gap-3 md:gap-4" style={{ width: 'max-content' }}>
                     {newArrivals.map((product) => (
@@ -382,7 +355,7 @@ function SearchContent() {
             </section>
           )}
 
-          {/* 💰 PIÙ CONVENIENTI USATO */}
+          {/* PIÙ CONVENIENTI USATO */}
           {bestUsedDeals.length > 0 && (
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
               <div className="flex items-center justify-between mb-6">
@@ -396,7 +369,7 @@ function SearchContent() {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                 {bestUsedDeals.map((product) => {
                   const hasImage = product.image_url && product.image_url.trim() !== '';
-                  const fallbackIcon = categoryIcons[product.category.toLowerCase()] || '🔧';
+                  const fallbackIcon = getCategoryIcon(product.category);
 
                   return (
                     <Link
@@ -404,12 +377,10 @@ function SearchContent() {
                       href={`/products/${product.id}`}
                       className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group relative"
                     >
-                      {/* Badge Risparmio */}
                       <div className="absolute top-3 right-3 z-10 bg-green-600 text-white px-3 py-1 rounded-lg font-bold text-sm shadow-lg">
                         Risparmi €{product.savings.toFixed(0)}
                       </div>
 
-                      {/* Immagine */}
                       <div
                         style={{
                           background: hasImage ? '#ffffff' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -432,7 +403,6 @@ function SearchContent() {
                         )}
                       </div>
 
-                      {/* Info */}
                       <div className="p-4">
                         <h3 className="font-bold text-sm mb-3 text-gray-900 line-clamp-2 min-h-[2.5rem] group-hover:text-green-600 transition-colors">
                           {product.name}
@@ -456,14 +426,14 @@ function SearchContent() {
             </section>
           )}
 
-          {/* 🎮 PER CATEGORIA */}
+          {/* PER CATEGORIA */}
           {mainCategories.map(catSlug => {
             const categoryProducts = categoryGroups[catSlug];
             if (!categoryProducts || categoryProducts.length === 0) return null;
 
             const catInfo = categories.find(c => c.slug === catSlug);
-            const catIcon = categoryIcons[catSlug] || '🔧';
-            const catName = categoryNames[catSlug] || catSlug.toUpperCase();
+            const catIcon = getCategoryIcon(catSlug);
+            const catName = getCategoryLabel(catSlug);
 
             return (
               <section key={catSlug} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -494,7 +464,7 @@ function SearchContent() {
             );
           })}
 
-          {/* 🌟 TRENDING QUESTA SETTIMANA */}
+          {/* TRENDING */}
           {trending.length > 0 && (
             <section className="bg-gradient-to-br from-purple-100 to-pink-100 py-12">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -517,7 +487,7 @@ function SearchContent() {
         </>
       )}
 
-      {/* VISTA FILTRATA - Quando c'è ricerca o categoria attiva */}
+      {/* VISTA FILTRATA */}
       {showFilteredView && (
         <section id="offerte" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
           <div className="mb-8">
@@ -549,10 +519,8 @@ function SearchContent() {
             </div>
           </div>
 
-          {/* 🎯 BADGE FILTRI ATTIVI */}
           {(searchQuery || activeCategory) && (
             <div className="mb-6 flex items-center gap-3 flex-wrap">
-              {/* Badge Categoria */}
               {activeCategory && (
                 <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold shadow-sm">
                   <span>{categories.find(c => c.slug === activeCategory)?.icon}</span>
@@ -570,7 +538,6 @@ function SearchContent() {
                 </div>
               )}
               
-              {/* Badge Ricerca */}
               {searchQuery && (
                 <div className="inline-flex items-center gap-2 bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-semibold shadow-sm">
                   <span>🔍</span>
@@ -588,7 +555,6 @@ function SearchContent() {
                 </div>
               )}
               
-              {/* Reset Tutto - solo se ci sono entrambi */}
               {searchQuery && activeCategory && (
                 <button
                   onClick={() => {
@@ -604,7 +570,6 @@ function SearchContent() {
             </div>
           )}
 
-          {/* Loading state */}
           {loading && (
             <div className="text-center py-20">
               <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-purple-600"></div>
@@ -612,14 +577,12 @@ function SearchContent() {
             </div>
           )}
 
-          {/* Error state */}
           {error && !loading && (
             <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-8 text-center">
               <p className="text-red-600 font-semibold">❌ {error}</p>
             </div>
           )}
 
-          {/* No results */}
           {!loading && !error && filteredProducts.length === 0 && (searchQuery || activeCategory) && (
             <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-8 text-center">
               <p className="text-yellow-700 font-semibold mb-2">🔍 Nessun prodotto trovato</p>
@@ -636,7 +599,6 @@ function SearchContent() {
             </div>
           )}
 
-          {/* Products Grid */}
           {!loading && !error && filteredProducts.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
               {filteredProducts.map((product) => (
