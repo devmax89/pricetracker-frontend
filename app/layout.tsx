@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CookieBanner from '@/components/CookieBanner';
 import AnalyticsProvider from '@/components/AnalyticsProvider';
-import Providers from './providers'; // 🆕 AGGIUNGI
+import Providers from './providers';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,8 +18,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OcchioAlPrezzo.com - Il tuo radar sulle offerte tech",
-  description: "Trova il miglior prezzo tech in Italia. Confronta prezzi nuovo e usato, storico prezzi e alert automatici.",
+  metadataBase: new URL('https://occhioalprezzo.com'),
+  title: {
+    default: 'OcchioAlPrezzo.com - Confronta Prezzi Tech in Tempo Reale',
+    template: '%s | OcchioAlPrezzo.com'
+  },
+  description: 'Trova il miglior prezzo per prodotti tech in Italia. Confronta prezzi nuovo e usato, monitora lo storico prezzi e ricevi alert automatici su GPU, CPU, Smartphone, Console e molto altro.',
+  keywords: ['confronto prezzi', 'tech', 'elettronica', 'gpu', 'cpu', 'smartphone', 'console', 'monitor', 'notebook', 'prezzo più basso', 'offerte tech'],
+  authors: [{ name: 'OcchioAlPrezzo.com' }],
+  creator: 'OcchioAlPrezzo.com',
+  publisher: 'OcchioAlPrezzo.com',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -36,10 +49,49 @@ export const metadata: Metadata = {
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
+  openGraph: {
+    type: 'website',
+    locale: 'it_IT',
+    url: 'https://occhioalprezzo.com',
+    siteName: 'OcchioAlPrezzo.com',
+    title: 'OcchioAlPrezzo.com - Confronta Prezzi Tech in Tempo Reale',
+    description: 'Trova il miglior prezzo per prodotti tech in Italia. Confronta prezzi nuovo e usato in tempo reale.',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'OcchioAlPrezzo.com',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'OcchioAlPrezzo.com - Confronta Prezzi Tech',
+    description: 'Trova il miglior prezzo per prodotti tech in Italia',
+    images: ['/og-image.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code', // 🆕 Aggiungi dopo Google Search Console
+  },
 };
 
 export const viewport = {
   themeColor: "#2563eb",
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -50,7 +102,7 @@ export default function RootLayout({
   return (
     <html lang="it">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers> {/* 🆕 WRAP TUTTO */}
+        <Providers>
           <AnalyticsProvider />
           <Header />
           {children}

@@ -8,6 +8,7 @@ import ProductCard from '@/components/ProductCard';
 import CategorySection from '@/components/CategorySection';
 import { getProducts, getCategories } from '@/lib/api';
 import { getCategoryIcon, getCategoryLabel } from '@/lib/categories';
+import StructuredData, { generateOrganizationSchema, generateWebSiteSchema } from '@/components/seo/StructuredData';
 
 // Componente separato per gestire searchParams
 function SearchContent() {
@@ -171,7 +172,12 @@ function SearchContent() {
   const showFilteredView = searchQuery || activeCategory;
 
   return (
+    <>
+      {/* Structured Data */}
+      <StructuredData data={generateOrganizationSchema()} />
+      <StructuredData data={generateWebSiteSchema()} />
     <main className="min-h-screen bg-gray-50">
+
       {/* Hero Section */}
       <section 
         style={{
@@ -638,6 +644,7 @@ function SearchContent() {
         </div>
       </section>
     </main>
+    </>
   );
 }
 
