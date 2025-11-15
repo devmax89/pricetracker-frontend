@@ -110,13 +110,12 @@ function SearchContent() {
 
   // 🎮 PER CATEGORIA - Top 4 per ogni categoria principale
   const categoryGroups: { [key: string]: any[] } = {};
-  const mainCategories = ['gpu', 'cpu', 'console', 'monitor', 'smartphone', 'notebook'];
-  
+  const mainCategories = ['gpu', 'cpu', 'console', 'monitor', 'smartphone', 'notebook', 'tablet']; // 🆕 Aggiunto 'tablet'
+
   mainCategories.forEach(catSlug => {
     categoryGroups[catSlug] = products
       .filter(p => p.category === catSlug)
       .sort((a, b) => {
-        // Ordina per sconto se disponibile, altrimenti per ID
         const discountA = a.discount_percentage ? parseFloat(a.discount_percentage) : 0;
         const discountB = b.discount_percentage ? parseFloat(b.discount_percentage) : 0;
         return discountB - discountA;

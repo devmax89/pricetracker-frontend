@@ -32,10 +32,10 @@ export default function CategorySection({
   
   const secondaryCategories = categories.filter(cat => !cat.is_featured);
 
-  // Organizza categorie secondarie per gruppo (aggiornato)
+// Organizza categorie secondarie per gruppo
   const groupedCategories = {
     'Componenti PC': secondaryCategories.filter(cat => 
-      ['schede-madri', 'ssd', 'ram', 'alimentatori', 'dissipatori', 'case-pc', 'pc-desktop'].includes(cat.slug) // 🆕 pc-desktop
+      ['schede-madri', 'ssd', 'ram', 'alimentatori', 'dissipatori', 'case-pc', 'pc-desktop'].includes(cat.slug)
     ),
     'Periferiche & Gaming': secondaryCategories.filter(cat =>
       ['cuffie-audio', 'controller-gaming', 'webcam-streaming'].includes(cat.slug)

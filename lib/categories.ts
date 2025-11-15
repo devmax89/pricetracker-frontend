@@ -7,6 +7,7 @@ export const CATEGORIES = [
   { value: 'monitor', label: 'Monitor', icon: '🖥️', featured: true },
   { value: 'mouse-tastiere', label: 'Mouse & Tastiere', icon: '⌨️', featured: true },
   { value: 'notebook', label: 'Notebook', icon: '💻', featured: true },
+  { value: 'tablet', label: 'Tablet', icon: '📱', featured: true }, // 🆕
   
   // Componenti PC
   { value: 'schede-madri', label: 'Schede Madri', icon: '🔲', featured: false },
@@ -15,7 +16,7 @@ export const CATEGORIES = [
   { value: 'alimentatori', label: 'Alimentatori', icon: '⚡', featured: false },
   { value: 'dissipatori', label: 'Dissipatori', icon: '❄️', featured: false },
   { value: 'case-pc', label: 'Case PC', icon: '📦', featured: false },
-  { value: 'pc-desktop', label: 'PC Desktop', icon: '🖥️', featured: false }, // 🆕
+  { value: 'pc-desktop', label: 'PC Desktop', icon: '🖥️', featured: false },
   
   // Periferiche & Gaming
   { value: 'cuffie-audio', label: 'Cuffie & Audio', icon: '🎧', featured: false },
