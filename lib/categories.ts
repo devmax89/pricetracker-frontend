@@ -1,13 +1,12 @@
 export const CATEGORIES = [
-  // Principali (Featured)
+  // Principali (Featured) - 7 categorie
   { value: 'gpu', label: 'Schede Video', icon: '🎮', featured: true },
   { value: 'cpu', label: 'Processori', icon: '🧠', featured: true },
   { value: 'smartphone', label: 'Smartphone', icon: '📱', featured: true },
   { value: 'console', label: 'Console', icon: '🎮', featured: true },
   { value: 'monitor', label: 'Monitor', icon: '🖥️', featured: true },
-  { value: 'mouse-tastiere', label: 'Mouse & Tastiere', icon: '⌨️', featured: true },
   { value: 'notebook', label: 'Notebook', icon: '💻', featured: true },
-  { value: 'tablet', label: 'Tablet', icon: '📱', featured: true }, // 🆕
+  { value: 'tablet', label: 'Tablet', icon: '📱', featured: true }, // 🆕 Featured
   
   // Componenti PC
   { value: 'schede-madri', label: 'Schede Madri', icon: '🔲', featured: false },
@@ -19,6 +18,7 @@ export const CATEGORIES = [
   { value: 'pc-desktop', label: 'PC Desktop', icon: '🖥️', featured: false },
   
   // Periferiche & Gaming
+  { value: 'mouse-tastiere', label: 'Mouse & Tastiere', icon: '⌨️', featured: false }, // 🆕 Non featured
   { value: 'cuffie-audio', label: 'Cuffie & Audio', icon: '🎧', featured: false },
   { value: 'controller-gaming', label: 'Controller Gaming', icon: '🎮', featured: false },
   { value: 'webcam-streaming', label: 'Webcam & Streaming', icon: '📷', featured: false },

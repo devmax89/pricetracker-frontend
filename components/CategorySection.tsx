@@ -38,7 +38,7 @@ export default function CategorySection({
       ['schede-madri', 'ssd', 'ram', 'alimentatori', 'dissipatori', 'case-pc', 'pc-desktop'].includes(cat.slug)
     ),
     'Periferiche & Gaming': secondaryCategories.filter(cat =>
-      ['cuffie-audio', 'controller-gaming', 'webcam-streaming'].includes(cat.slug)
+      ['mouse-tastiere', 'cuffie-audio', 'controller-gaming', 'webcam-streaming'].includes(cat.slug) // 🆕 Aggiunto mouse-tastiere
     ),
     'Mobile & Wearables': secondaryCategories.filter(cat =>
       ['smartwatch'].includes(cat.slug)

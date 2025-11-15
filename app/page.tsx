@@ -110,7 +110,7 @@ function SearchContent() {
 
   // 🎮 PER CATEGORIA - Top 4 per ogni categoria principale
   const categoryGroups: { [key: string]: any[] } = {};
-  const mainCategories = ['gpu', 'cpu', 'console', 'monitor', 'smartphone', 'notebook', 'tablet']; // 🆕 Aggiunto 'tablet'
+  const mainCategories = ['gpu', 'cpu', 'console', 'monitor', 'smartphone', 'notebook', 'tablet'];
 
   mainCategories.forEach(catSlug => {
     categoryGroups[catSlug] = products
