@@ -37,6 +37,8 @@ interface Product {
   model: string;
   category: string;
   image_url?: string;
+  description?: string;
+  specs?: string;
 }
 
 interface PriceItem {
@@ -80,6 +82,9 @@ export default function ProductPageClient({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<7 | 30 | 90>(30);
+  
+  // Tab State for Description/Specs
+  const [activeTab, setActiveTab] = useState<'description' | 'specs'>('description');
   
   // Price Alert State
   const [alertPrice, setAlertPrice] = useState<string>('');
@@ -376,6 +381,52 @@ export default function ProductPageClient({ id }: { id: string }) {
                 )}
               </div>
             </div>
+
+            {/* Product Description / Specs Tabs */}
+            {(product.description || product.specs) && (
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                {/* Tab Buttons */}
+                <div className="flex gap-2 mb-4">
+                  {product.description && (
+                    <button
+                      onClick={() => setActiveTab('description')}
+                      className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
+                        activeTab === 'description'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      Descrizione
+                    </button>
+                  )}
+                  {product.specs && (
+                    <button
+                      onClick={() => setActiveTab('specs')}
+                      className={`px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
+                        activeTab === 'specs'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      Specifiche
+                    </button>
+                  )}
+                </div>
+
+                {/* Tab Content */}
+                {activeTab === 'description' && product.description && (
+                  <p className="text-sm md:text-base text-gray-700 leading-relaxed whitespace-pre-line">
+                    {product.description}
+                  </p>
+                )}
+                
+                {activeTab === 'specs' && product.specs && (
+                  <p className="text-sm md:text-base text-gray-700 leading-relaxed whitespace-pre-line">
+                    {product.specs}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Price Alert Form */}

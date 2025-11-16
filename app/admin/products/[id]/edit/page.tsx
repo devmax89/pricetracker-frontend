@@ -22,6 +22,7 @@ export default function EditProductPage() {
     model: '',
     category: '',
     description: '',
+    specs: '',
     image_url: '',
     is_active: true,
     amazon_url: '',
@@ -62,6 +63,7 @@ export default function EditProductPage() {
         model: product.model || '',
         category: product.category || 'gpu',
         description: product.description || '',
+        specs: product.specs || '',
         image_url: product.image_url || '',
         is_active: product.is_active ?? true,
         amazon_url: product.amazon_url || '',
@@ -250,6 +252,22 @@ export default function EditProductPage() {
               onChange={handleChange}
               rows={4}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Descrizione del prodotto..."
+            />
+          </div>
+
+          {/* Specifiche Tecniche */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Specifiche Tecniche
+            </label>
+            <textarea
+              name="specs"
+              value={formData.specs}
+              onChange={handleChange}
+              rows={6}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Specifiche tecniche del prodotto..."
             />
           </div>
 
@@ -259,7 +277,7 @@ export default function EditProductPage() {
               URL Immagine
             </label>
             <input
-              type="url"
+              type="text"
               name="image_url"
               value={formData.image_url}
               onChange={handleChange}

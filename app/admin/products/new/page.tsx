@@ -17,6 +17,7 @@ export default function NewProductPage() {
     model: '',
     category: 'gpu',
     description: '',
+    specs: '',
     image_url: '',
     
     //RETAILER URLs
@@ -187,6 +188,21 @@ export default function NewProductPage() {
               rows={4}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               placeholder="Descrizione del prodotto..."
+            />
+          </div>
+
+          {/* Specifiche Tecniche */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Specifiche Tecniche
+            </label>
+            <textarea
+              name="specs"
+              value={formData.specs}
+              onChange={handleChange}
+              rows={6}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Specifiche tecniche del prodotto..."
             />
           </div>
 
