@@ -79,7 +79,7 @@ export default function ProductPageClient({ id }: { id: string }) {
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPeriod, setSelectedPeriod] = useState<7 | 30 | 90>(90);
+  const [selectedPeriod, setSelectedPeriod] = useState<7 | 30 | 90>(30);
   
   // Price Alert State
   const [alertPrice, setAlertPrice] = useState<string>('');

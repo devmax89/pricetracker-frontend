@@ -71,9 +71,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             <Image
               src={product.image_url!}
               alt={product.name}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
               onError={(e) => {
                 // Fallback se l'immagine non carica -> torna al viola con icona
                 const target = e.target as HTMLImageElement;
