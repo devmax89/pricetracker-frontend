@@ -178,6 +178,28 @@ export default function ProductPageClient({ id }: { id: string }) {
     return item.source === 'MediaWorld Ricondizionati';
   };
 
+  // 🆕 Group used listings by retailer and take top 2-3 per retailer
+  const groupUsedListingsByRetailer = (listings: UsedListing[]) => {
+    const grouped = listings.reduce((acc, listing) => {
+      const retailer = listing.source || 'Altro';
+      if (!acc[retailer]) {
+        acc[retailer] = [];
+      }
+      acc[retailer].push(listing);
+      return acc;
+    }, {} as Record<string, UsedListing[]>);
+
+    // Take top 2-3 per retailer (already sorted by price ASC from API)
+    const result: UsedListing[] = [];
+    Object.entries(grouped).forEach(([retailer, items]) => {
+      result.push(...items.slice(0, 3)); // Top 3 per retailer
+    });
+
+    return result;
+  };
+
+  const displayedUsedListings = prices?.used ? groupUsedListingsByRetailer(prices.used) : [];
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -399,6 +421,7 @@ export default function ProductPageClient({ id }: { id: string }) {
                       Descrizione
                     </button>
                   )}
+                  {/* DISABILITATO TEMPORANEAMENTE - SPECS
                   {product.specs && (
                     <button
                       onClick={() => setActiveTab('specs')}
@@ -411,6 +434,7 @@ export default function ProductPageClient({ id }: { id: string }) {
                       Specifiche
                     </button>
                   )}
+                  */}
                 </div>
 
                 {/* Tab Content */}
@@ -599,14 +623,14 @@ export default function ProductPageClient({ id }: { id: string }) {
           )}
 
           {/* Used Prices */}
-          {prices && prices.used && prices.used.length > 0 && (
+          {displayedUsedListings.length > 0 && (
             <div id="usato" className="bg-white rounded-xl shadow-lg p-4 md:p-8">
               <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 flex items-center gap-2">
                 <span className="text-green-600">♻️</span>
                 Annunci Usato e Ricondizionato
               </h2>
               <div className="space-y-3 md:space-y-4">
-                {prices.used.map((item, idx) => {
+                {displayedUsedListings.map((item, idx) => {
                   const isMWRicond = isMediaWorldRicondizionati(item);
                   const grading = extractGrading(item.grading);
                   
