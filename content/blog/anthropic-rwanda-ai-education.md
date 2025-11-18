@@ -292,4 +292,4 @@ E il Ruanda sta mostrando al mondo come farlo bene. 🌍🚀
 
 **Vuoi saperne di più sull'AI nell'educazione?** Leggi anche:
 - [GPT-5.1: La Nuova AI di OpenAI](/blog/gpt-51-openai-novita)
-- [Come l'AI Sta Trasformando l'Educazione](https://www.anthropic.com/claude-for-education)
+- [Come l'AI Sta Trasformando l'Educazione](https://www.anthropic.com/news/introducing-claude-for-education)
