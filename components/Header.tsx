@@ -87,6 +87,9 @@ export default function Header() {
             <Link href="/alert" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Alert
             </Link>
+            <Link href="/blog" className="text-gray-700 hover:text-blue-600 font-medium transition">
+              Blog
+            </Link>
             <Link href="/come-funziona" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Come Funziona
             </Link>
@@ -139,6 +142,13 @@ export default function Header() {
               className="block text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition"
             >
               🔔 Alert
+            </Link>
+            <Link
+              href="/blog"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-gray-700 hover:text-blue-600 font-medium py-2 px-4 rounded-lg hover:bg-gray-50 transition"
+            >
+              📚 Blog
             </Link>
             <Link
               href="/come-funziona"

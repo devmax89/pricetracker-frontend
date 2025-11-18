@@ -11,10 +11,16 @@ export default function StructuredData({ data }: StructuredDataProps) {
   );
 }
 
-// Helper functions per generare structured data
 export function generateProductSchema(product: any) {
-  const minPrice = product.new_min_price || product.used_min_price;
-  const maxPrice = product.new_max_price || minPrice;
+  // Parse prezzi come float, fallback a 0.01 se mancanti
+  const newMin = product.new_min_price ? parseFloat(product.new_min_price) : null;
+  const newMax = product.new_max_price ? parseFloat(product.new_max_price) : null;
+  const usedMin = product.used_min_price ? parseFloat(product.used_min_price) : null;
+  const usedMax = product.used_max_price ? parseFloat(product.used_max_price) : null;
+  
+  // Prendi il prezzo minimo disponibile (nuovo o usato)
+  const minPrice = newMin || usedMin || 0.01;
+  const maxPrice = newMax || usedMax || newMin || usedMin || minPrice;
   
   // Base schema
   const schema: any = {
@@ -37,22 +43,19 @@ export function generateProductSchema(product: any) {
       : `https://occhioalprezzo.com${product.image_url}`;
   }
 
-  // Add offers with lowPrice and highPrice (REQUIRED!)
-  if (minPrice) {
-    schema.offers = {
-      "@type": "AggregateOffer",
-      "url": `https://occhioalprezzo.com/products/${product.id}`,
-      "priceCurrency": "EUR",
-      "lowPrice": parseFloat(minPrice).toFixed(2),
-      "highPrice": parseFloat(maxPrice).toFixed(2),
-      "offerCount": product.retailers_count || 1,
-      "availability": "https://schema.org/InStock",
-      "priceValidUntil": new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 days
-    };
-  }
+  // SEMPRE aggiungi offers (richiesto da Google)
+  schema.offers = {
+    "@type": "AggregateOffer",
+    "url": `https://occhioalprezzo.com/products/${product.id}`,
+    "priceCurrency": "EUR",
+    "lowPrice": minPrice.toFixed(2),
+    "highPrice": maxPrice.toFixed(2),
+    "offerCount": parseInt(product.retailers_count) || 1,
+    "availability": minPrice > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    "priceValidUntil": new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  };
 
-  // Add aggregate rating (optional, but recommended)
-  // For now, use a placeholder or skip if you don't have ratings
+  // Add aggregate rating if available
   if (product.rating && product.review_count) {
     schema.aggregateRating = {
       "@type": "AggregateRating",
@@ -62,9 +65,6 @@ export function generateProductSchema(product: any) {
       "worstRating": "1"
     };
   }
-
-  // Add review (optional)
-  // Skip for now unless you implement user reviews
 
   return schema;
 }
