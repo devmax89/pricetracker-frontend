@@ -62,7 +62,7 @@ export default async function BlogPostPage({ params }: Props) {
             {post.title}
           </h1>
 
-          <div className="flex flex-wrap items-center gap-6 text-blue-100">
+          <div className="flex flex-wrap items-center gap-6 text-blue-100 mb-8">
             <div className="flex items-center gap-2">
               <span>📅</span>
               <span className="font-medium">{formatDate(post.date)}</span>
@@ -72,6 +72,17 @@ export default async function BlogPostPage({ params }: Props) {
               <span className="font-medium">{post.readingTime} min</span>
             </div>
           </div>
+
+          {/* 🆕 Hero Image */}
+          {post.image && (
+            <div className="mt-8 rounded-xl overflow-hidden shadow-2xl border-4 border-white/20">
+              <img
+                src={post.image}
+                alt={post.title}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+          )}
         </div>
       </header>
 

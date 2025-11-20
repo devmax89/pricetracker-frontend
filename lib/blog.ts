@@ -14,6 +14,7 @@ export interface BlogPost {
   category: string;
   readingTime: number;
   content: string;
+  image?: string;
 }
 
 function ensureContentDir() {
@@ -59,6 +60,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
           category: data.category || 'Tech',
           readingTime: calculateReadingTime(content),
           content: marked(content) as string,
+          image: data.image,
         };
       });
 
@@ -99,6 +101,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
       category: data.category || 'Tech',
       readingTime: calculateReadingTime(content),
       content: marked(content) as string,
+      image: data.image,
     };
   } catch (error) {
     console.error(`[BLOG] Error reading post ${slug}:`, error);
